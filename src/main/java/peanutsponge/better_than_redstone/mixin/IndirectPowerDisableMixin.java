@@ -1,4 +1,4 @@
-package turniplabs.examplemod.mixin;
+package peanutsponge.better_than_redstone.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import net.minecraft.core.world.World;

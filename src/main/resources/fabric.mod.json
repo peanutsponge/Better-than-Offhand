@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "id": "examplemod",
+  "id": "better_than_redstone",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This mod aims to help new BTA modders.",
+  "name": "Better Than Redstone",
+  "description": "Makes redstone 3D and direct.",
   "authors": [
-    "Turnip Labs"
+    "Peanutsponge"
   ],
   "contact": {
     "homepage": "",
@@ -18,20 +18,20 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-			"turniplabs.examplemod.ExampleMod"
+			"peanutsponge.better_than_redstone.BetterThanRedstoneMod"
     ],
 		"beforeGameStart": [
-			"turniplabs.examplemod.ExampleMod"
+			"peanutsponge.better_than_redstone.BetterThanRedstoneMod"
 		],
 		"afterGameStart": [
-			"turniplabs.examplemod.ExampleMod"
+			"peanutsponge.better_than_redstone.BetterThanRedstoneMod"
 		],
 		"recipesReady": [
-			"turniplabs.examplemod.ExampleMod"
+			"peanutsponge.better_than_redstone.BetterThanRedstoneMod"
 		]
 	},
   "mixins": [
-      "examplemod.mixins.json"
+		"better_than_redstone.mixins.json"
   ],
 
   "depends": {

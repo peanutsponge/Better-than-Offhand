@@ -1,4 +1,4 @@
-package turniplabs.examplemod;
+package peanutsponge.better_than_redstone;
 
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.block.Block;
@@ -14,8 +14,8 @@ import turniplabs.halplibe.util.ConfigHandler;
 import java.util.Properties;
 
 
-public class ExampleMod implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
-    public static final String MOD_ID = "examplemod";
+public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
+    public static final String MOD_ID = "better_than_redstone";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final ConfigHandler config;
 	static {
@@ -28,7 +28,7 @@ public class ExampleMod implements ModInitializer, GameStartEntrypoint, RecipeEn
 	public static Block blockRedstoneConductor;
     @Override
     public void onInitialize() {
-        LOGGER.info("ExampleMod initialized.");
+        LOGGER.info("Better than redstone initialized.");
 		int blockNum = config.getInt("starting_block_id");
 		blockRedstoneConductor = new BlockBuilder(MOD_ID)
 			.setTextures("redstone_conductor.png")
