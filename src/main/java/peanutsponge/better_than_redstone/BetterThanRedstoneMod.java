@@ -20,27 +20,31 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 	public static final ConfigHandler config;
 	static {
 		Properties prop = new Properties();
-		prop.setProperty("starting_block_id","2999");
-		prop.setProperty("starting_item_id","18999");
+		prop.setProperty("starting_block_id","3000");
+		prop.setProperty("starting_item_id","19000");
 		config = new ConfigHandler(MOD_ID,prop);
 		config.updateConfig();
 	}
 	public static Block blockRedstoneConductor;
+	public static BlockBuilder signalBlockBuilder = new BlockBuilder(MOD_ID)
+		.setLightOpacity(0)
+		.setHardness(1.5f)
+		.setVisualUpdateOnMetadata()
+		.setTags(BlockTags.MINEABLE_BY_PICKAXE);
     @Override
     public void onInitialize() {
         LOGGER.info("Better than redstone initialized.");
-		int blockNum = config.getInt("starting_block_id");
-		blockRedstoneConductor = new BlockBuilder(MOD_ID)
-			.setLightOpacity(0)
-			.setHardness(1.5f)
-			.setVisualUpdateOnMetadata()
-			.setTags(BlockTags.MINEABLE_BY_PICKAXE)
-			.build(new RedstoneConductor("redstone_conductor", blockNum++, Material.metal));
-    }
+
+	}
+
 
 	@Override
 	public void beforeGameStart() {
-
+		int blockNum = config.getInt("starting_block_id");
+		blockRedstoneConductor = signalBlockBuilder
+			.build(new BlockSignalReceiver("signal_conductor", blockNum++));
+		blockRedstoneConductor = signalBlockBuilder
+			.build(new BlockSignalReceiver("signal_display", blockNum++));
 	}
 
 	@Override
