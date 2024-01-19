@@ -55,7 +55,8 @@ public class RedstoneConductor extends Block {
 			}
 		}
 		if (l1 != l0){
-			world.setBlockMetadataWithNotify(x, y, z, l1);
+			world.setBlockMetadata(x, y, z, l1);
+			world.notifyBlocksOfNeighborChange(x,y,z,this.id);
 		}
 		LOGGER.info("Done PropagateCurrent (" + x +","+ y+"," + z+") " + world.getBlockMetadata(x, y, z));
 	}

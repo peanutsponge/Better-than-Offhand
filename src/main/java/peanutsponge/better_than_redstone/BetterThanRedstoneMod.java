@@ -34,6 +34,7 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 			.setTextures("redstone_conductor.png")
 			.setLightOpacity(0)
 			.setHardness(1.5f)
+			.setVisualUpdateOnMetadata()
 			.setTags(BlockTags.MINEABLE_BY_PICKAXE)
 			.build(new RedstoneConductor("redstone_conductor", blockNum++, Material.metal));
     }
