@@ -2,16 +2,26 @@ package peanutsponge.better_than_redstone;
 
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.material.Material;
+import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
+import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
 
 public class RedstoneConductor extends Block {
+	public static int[] atlasIndices = new int[16];
 	public RedstoneConductor(String key, int id, Material material) {
 		super(key, id, material);
-		this.setTicking(true);
-
+		for(int i = 0; i < 16; ++i) {
+			atlasIndices[i] = getOrCreateBlockTextureIndex(MOD_ID,"redstone_conductor ("+ i +").png");
+			LOGGER.info("[" + i + "]:" + atlasIndices[i] + "[redstone_conductor ("+ i +").png]");
+		}
+	}
+	@Override
+	public int getBlockTextureFromSideAndMetadata(Side side, int data) {
+		return atlasIndices[data % 16];
 	}
 
 	public void onBlockAdded(World world, int x, int y, int z) {
@@ -60,4 +70,6 @@ public class RedstoneConductor extends Block {
 		}
 		LOGGER.info("Done PropagateCurrent (" + x +","+ y+"," + z+") " + world.getBlockMetadata(x, y, z));
 	}
+
+
 }

@@ -31,7 +31,6 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
         LOGGER.info("Better than redstone initialized.");
 		int blockNum = config.getInt("starting_block_id");
 		blockRedstoneConductor = new BlockBuilder(MOD_ID)
-			.setTextures("redstone_conductor.png")
 			.setLightOpacity(0)
 			.setHardness(1.5f)
 			.setVisualUpdateOnMetadata()
