@@ -25,12 +25,18 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 		config = new ConfigHandler(MOD_ID,prop);
 		config.updateConfig();
 	}
-	public static Block blockRedstoneConductor;
+
 	public static BlockBuilder signalBlockBuilder = new BlockBuilder(MOD_ID)
 		.setLightOpacity(0)
 		.setHardness(1.5f)
 		.setVisualUpdateOnMetadata()
 		.setTags(BlockTags.MINEABLE_BY_PICKAXE);
+
+	public static Block blockSignalConductor;
+	public static Block blockSignalDisplay;
+	public static Block blockSignalInverter;
+	public static Block blockSignalExtenderOn;
+	public static Block blockSignalExtenderOff;
     @Override
     public void onInitialize() {
         LOGGER.info("Better than redstone initialized.");
@@ -41,10 +47,18 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 	@Override
 	public void beforeGameStart() {
 		int blockNum = config.getInt("starting_block_id");
-		blockRedstoneConductor = signalBlockBuilder
+		blockSignalConductor = signalBlockBuilder
 			.build(new BlockSignalReceiver("signal_conductor", blockNum++));
-		blockRedstoneConductor = signalBlockBuilder
+		blockSignalDisplay = signalBlockBuilder
 			.build(new BlockSignalReceiver("signal_display", blockNum++));
+		blockSignalInverter = signalBlockBuilder
+			.build(new BlockSignalInverter("signal_inverter", blockNum++));
+		blockSignalExtenderOn = signalBlockBuilder
+			.setTextures("signal_extender_on.png")
+			.build(new BlockSignalExtender("signal_extender_on", blockNum++, true));
+		blockSignalExtenderOff = signalBlockBuilder
+			.setTextures("signal_extender_off.png")
+			.build(new BlockSignalExtender("signal_extender_off", blockNum++,false));
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import net.minecraft.core.world.World;
 import java.util.Random;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.*;
+import static peanutsponge.better_than_redstone.Signal.getMaxCurrent;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
 
@@ -29,60 +30,36 @@ public class BlockSignalReceiver extends Block {
 
 	public void onBlockAdded(World world, int x, int y, int z) {
 		super.onBlockAdded(world, x, y, z);
-		this.updateAndPropagateCurrentStrength(world, x, y, z);
+		this.propagateCurrent(world, x, y, z);
 	}
 
 
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
-		this.updateAndPropagateCurrentStrength(world, x, y, z);
+		this.propagateCurrent(world, x, y, z);
 		super.onNeighborBlockChange(world, x, y, z, blockId);
 	}
-
-	private int getMaxCurrentStrength(World world, int x, int y, int z, int l) {
-		int blockId = world.getBlockId(x, y, z);
-		int data = world.getBlockMetadata(x, y, z);
-		LOGGER.info("getMaxCurrentStrength: (" + x +","+ y+"," + z+") " + "[" + blockId +";"+data+"]" + l + ": " + blockRedstoneConductor.id);
-		if (blockId == blockRedstoneConductor.id - 1) {
-			LOGGER.info("TRIGGERED blockRedstoneConductor");
-			int l2 = data%16;
-			return Math.max(l2, l);
-		} else {
-			return l;
-		}
-	}
-
-	private void updateAndPropagateCurrentStrength(World world, int x, int y, int z) {
-
-		int l0 = world.getBlockMetadata(x, y, z);
-		LOGGER.info("Start PropagateCurrent (" + x +","+ y+"," + z+") " + l0);
-		int l1;
-		if (world.isBlockGettingPowered(x,y,z)){
-			l1 = 15;
-		} else {
-			l1 = this.getMaxCurrentStrength(world, x+1, y, z, 0);
-			l1 = this.getMaxCurrentStrength(world, x-1, y, z, l1);
-			l1 = this.getMaxCurrentStrength(world, x, y+1, z, l1);
-			l1 = this.getMaxCurrentStrength(world, x, y-1, z, l1);
-			l1 = this.getMaxCurrentStrength(world, x, y, z+1, l1);
-			l1 = this.getMaxCurrentStrength(world, x, y, z-1, l1);
-			if (this.id == blockRedstoneConductor.id - 1 & l1>0){
-				l1--;
+	/**
+	 * Calculates the current it should have, updates its metadata accordingly and notifies neighbors
+	 */
+	private void propagateCurrent(World world, int x, int y, int z) {
+		int oldCurrent = world.getBlockMetadata(x, y, z);
+		int newCurrent = getMaxCurrent(world,x,y,z);
+		if (this.id == blockSignalConductor.id & newCurrent > 0 & !world.isBlockGettingPowered(x,y,z)){
+				newCurrent--;
 			}
-		}
-		if (l1 != l0){
-			world.setBlockMetadata(x, y, z, l1);
+		if (newCurrent != oldCurrent){
+			world.setBlockMetadata(x, y, z, newCurrent);
 			world.notifyBlocksOfNeighborChange(x,y,z,this.id);
 		}
-		LOGGER.info("Done PropagateCurrent (" + x +","+ y+"," + z+") " + world.getBlockMetadata(x, y, z));
+		LOGGER.info("Done PropagateCurrent (" + x +","+ y+"," + z+")\n old & new -> out:" + oldCurrent + " & " + newCurrent + " -> " + world.getBlockMetadata(x, y, z));
 	}
 
 
 	public void randomDisplayTick(World world, int x, int y, int z, Random rand) {
 		int l0 = world.getBlockMetadata(x, y, z);
-		if (l0>0){ //Should roll random number and compare
+		if (l0>0){ //Should roll random number and compare against current
 			this.spawnParticles(world, x, y, z);
 		}
-
 	}
 
 	private void spawnParticles(World world, int x, int y, int z) {
