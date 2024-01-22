@@ -2,9 +2,11 @@ package peanutsponge.better_than_redstone;
 
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.entity.TileEntity;
+import net.minecraft.core.block.logic.PistonDirections;
 import net.minecraft.core.block.material.Material;
 import net.minecraft.core.entity.EntityLiving;
 import net.minecraft.core.enums.EnumDropCause;
+import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 import net.minecraft.core.world.WorldSource;
@@ -22,6 +24,29 @@ public class BlockSignalExtender extends Block {
 		super(key, id, Material.metal);
         this.isOn = isOn_;
 		}
+	public static int getDirection(int data) {
+		return data & 7;
+	}
+
+	public int getFaceTexture() {
+		return !this.isOn ? texCoordToIndex(11, 6) : texCoordToIndex(10, 6);
+	}
+
+	public int getBlockTextureFromSideAndMetadata(Side side, int data) {
+		int direction = getDirection(data);
+		if (direction > 5) {
+			return texCoordToIndex(13, 6);
+		} else if (side.getId() == direction) { // face texture
+			return getFaceTexture();
+		} else {
+			return side.getId() != PistonDirections.directionMap[direction] ? texCoordToIndex(12, 6) : texCoordToIndex(14, 6);
+			//return side.getId() != PistonDirections.directionMap[direction] ? texCoordToIndex(12, 6) : texCoordToIndex(13, 6);
+		}
+	}
+
+	public boolean isSolidRender() {
+		return false;
+	}
 
 	public void updateTick(World world, int x, int y, int z, Random rand) {
 		int l = world.getBlockMetadata(x, y, z);
@@ -37,16 +62,13 @@ public class BlockSignalExtender extends Block {
 
 
 	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {
-		int l = entity.getHorizontalPlacementDirection(side).index;
-		world.setBlockMetadataWithNotify(x, y, z, l);
+		Direction placementDirection = entity.getPlacementDirection(side).getOpposite();
+		world.setBlockMetadataWithNotify(x, y, z, placementDirection.getId());
 		boolean hasCurrent = hasCurrent(world, x, y, z);
 		if (hasCurrent) {
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		}
-
 	}
-
-
 
 
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
@@ -64,6 +86,5 @@ public class BlockSignalExtender extends Block {
 	public boolean isPoweringTo(WorldSource blockAccess, int x, int y, int z, int side) {
 		return this.isOn;
 	}
-
 
 }

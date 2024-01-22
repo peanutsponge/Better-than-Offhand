@@ -1,2 +1,6 @@
-tile.better_than_redstone.redstone_conductor.name = Redstone Conductor
-tile.better_than_redstone.redstone_conductor.desc =  Conducts Redstone
+tile.better_than_redstone.signal_conductor.name = Redstone Conductor
+tile.better_than_redstone.signal_conductor.desc = Conducts Redstone
+tile.better_than_redstone.signal_extender.name = Redstone Extender
+tile.better_than_redstone.signal_extender.desc = Extends Redstone
+tile.better_than_redstone.signal_display.name = Redstone Display
+tile.better_than_redstone.signal_display.desc = Displays Signal Strength
