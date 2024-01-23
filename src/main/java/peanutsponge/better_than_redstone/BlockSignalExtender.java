@@ -16,20 +16,26 @@ import java.util.Random;
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.*;
 import static peanutsponge.better_than_redstone.Signal.getMaxCurrent;
 import static peanutsponge.better_than_redstone.Signal.hasCurrent;
+import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
 public class BlockSignalExtender extends Block {
 	private final boolean isOn;
+	public int[] atlasIndices = new int[4];
 
 	public BlockSignalExtender(String key, int id, boolean isOn_) {
 		super(key, id, Material.metal);
         this.isOn = isOn_;
+		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_behind.png");
+		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_side.png");
+		this.atlasIndices[2] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_off.png");
+		this.atlasIndices[3] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_on.png");
 		}
 	public static int getDirection(int data) {
 		return data & 7;
 	}
 
 	public int getFaceTexture() {
-		return !this.isOn ? texCoordToIndex(11, 6) : texCoordToIndex(10, 6);
+		return !this.isOn ? this.atlasIndices[2] : this.atlasIndices[3];
 	}
 
 	public int getBlockTextureFromSideAndMetadata(Side side, int data) {
@@ -39,8 +45,7 @@ public class BlockSignalExtender extends Block {
 		} else if (side.getId() == direction) { // face texture
 			return getFaceTexture();
 		} else {
-			return side.getId() != PistonDirections.directionMap[direction] ? texCoordToIndex(12, 6) : texCoordToIndex(14, 6);
-			//return side.getId() != PistonDirections.directionMap[direction] ? texCoordToIndex(12, 6) : texCoordToIndex(13, 6);
+			return side.getId() != PistonDirections.directionMap[direction] ? this.atlasIndices[1] : this.atlasIndices[0];
 		}
 	}
 

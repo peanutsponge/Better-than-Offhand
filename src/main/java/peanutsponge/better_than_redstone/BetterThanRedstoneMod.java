@@ -55,6 +55,7 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 		blockSignalInverter = signalBlockBuilder
 			.build(new BlockSignalInverter("signal_inverter", blockNum++));
 		blockSignalExtenderOn = signalBlockBuilder
+			.setBlockModel(new BlockModelRenderBlocks(16))
 			.build(new BlockSignalExtender("signal_extender_on", blockNum++, true));
 		blockSignalExtenderOff = signalBlockBuilder
 			.setBlockModel(new BlockModelRenderBlocks(16))
