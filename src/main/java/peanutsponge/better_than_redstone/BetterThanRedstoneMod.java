@@ -3,7 +3,6 @@ package peanutsponge.better_than_redstone;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.render.block.model.BlockModelRenderBlocks;
 import net.minecraft.core.block.Block;
-import net.minecraft.core.block.material.Material;
 import net.minecraft.core.block.tag.BlockTags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +48,10 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 	public void beforeGameStart() {
 		int blockNum = config.getInt("starting_block_id");
 		blockSignalConductor = signalBlockBuilder
-			.build(new BlockSignalReceiver("signal_conductor", blockNum++));
+			.build(new BlockSignalConductor("signal_conductor", blockNum++));
 		blockSignalDisplay = signalBlockBuilder
-			.build(new BlockSignalReceiver("signal_display", blockNum++));
+			.setBlockModel(new BlockModelRenderBlocks(16))
+			.build(new BlockSignalDisplay("signal_display", blockNum++));
 		blockSignalInverter = signalBlockBuilder
 			.build(new BlockSignalInverter("signal_inverter", blockNum++));
 		blockSignalExtenderOn = signalBlockBuilder

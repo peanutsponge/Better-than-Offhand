@@ -25,7 +25,7 @@ public class BlockSignalExtender extends Block {
 	public BlockSignalExtender(String key, int id, boolean isOn_) {
 		super(key, id, Material.metal);
         this.isOn = isOn_;
-		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_behind.png");
+		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_input.png");
 		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_side.png");
 		this.atlasIndices[2] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_off.png");
 		this.atlasIndices[3] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_on.png");

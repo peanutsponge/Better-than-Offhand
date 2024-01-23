@@ -1,9 +1,7 @@
 package peanutsponge.better_than_redstone;
 
-import net.minecraft.client.util.helper.Colors;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.material.Material;
-import net.minecraft.core.util.helper.Color;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 
@@ -15,9 +13,9 @@ import static peanutsponge.better_than_redstone.Signal.spawnParticles;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
 
-public class BlockSignalReceiver extends Block {
+public class BlockSignalConductor extends Block {
 	public int[] atlasIndices = new int[16];
-	public BlockSignalReceiver(String key, int id) {
+	public BlockSignalConductor(String key, int id) {
 		super(key, id, Material.metal);
 		for(int i = 0; i < 16; ++i) {
 			this.atlasIndices[i] = getOrCreateBlockTextureIndex(MOD_ID, key + " ("+ i +").png");
@@ -45,14 +43,14 @@ public class BlockSignalReceiver extends Block {
 	private void propagateCurrent(World world, int x, int y, int z) {
 		int oldCurrent = world.getBlockMetadata(x, y, z);
 		int newCurrent = getMaxCurrent(world,x,y,z);
-		if (this.id == blockSignalConductor.id & newCurrent > 0 & !world.isBlockGettingPowered(x,y,z)){
+		if (newCurrent > 0 & !world.isBlockGettingPowered(x,y,z)){
 				newCurrent--;
 			}
 		if (newCurrent != oldCurrent){
 			world.setBlockMetadata(x, y, z, newCurrent);
 			world.notifyBlocksOfNeighborChange(x,y,z,this.id);
 		}
-		LOGGER.info("Done PropagateCurrent (" + x +","+ y+"," + z+")\n old & new -> out:" + oldCurrent + " & " + newCurrent + " -> " + world.getBlockMetadata(x, y, z));
+//		LOGGER.info("Done PropagateCurrent (" + x +","+ y+"," + z+")\n old & new -> out:" + oldCurrent + " & " + newCurrent + " -> " + world.getBlockMetadata(x, y, z));
 	}
 
 
