@@ -1,14 +1,15 @@
 {
-    "required": true,
-    "minVersion": "0.8",
-    "package": "peanutsponge.better_than_redstone.mixin",
-    "compatibilityLevel": "JAVA_8",
-    "mixins": [
-      "IndirectPowerDisableMixin"
-    ],
-    "client": [
-    ],
-    "injectors": {
-        "defaultRequire": 1
+  "required": true,
+  "minVersion": "0.8",
+  "package": "peanutsponge.better_than_redstone.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "DirectionalModelMixin",
+    "IndirectPowerDisableMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
   }
 }
