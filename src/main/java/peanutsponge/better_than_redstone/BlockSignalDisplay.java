@@ -7,6 +7,7 @@ import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
 import static peanutsponge.better_than_redstone.BlockDirectional.*;
 import static peanutsponge.better_than_redstone.Signal.getMaxCurrent;
@@ -39,7 +40,8 @@ public class BlockSignalDisplay extends Block {
 	}
 	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {
 		Direction placementDirection = entity.getPlacementDirection(side).getOpposite();
-		Direction horizontalDirection = Direction.getHorizontalDirection(entity.xRot);
+		Direction horizontalDirection = Direction.getHorizontalDirection(entity.yRot);
+		LOGGER.info("On block placed: " + horizontalDirection +" , "+ horizontalDirection.getHorizontalIndex());
 		world.setBlockMetadataWithNotify(x, y, z, makeDirectionAndSignalCode(makeDirectionCode(placementDirection, horizontalDirection), 0));
 		this.propagateCurrent(world, x, y, z);
 	}

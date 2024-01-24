@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static net.minecraft.core.util.helper.Direction.*;
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
 import static peanutsponge.better_than_redstone.BlockDirectional.*;
 
 @Mixin(value = RenderBlocks.class, remap = false)
@@ -45,90 +46,104 @@ public class DirectionalModelMixin{
 		int directionCode = getDirectionCode(data);
 		Direction placementDirection = getPlacementDirection(directionCode);
 		Direction horizontalDirection = getHorizontalDirection(directionCode);
+		LOGGER.info("Placement direction: "+ placementDirection + ", "+ placementDirection.getHorizontalIndex());
+		LOGGER.info("Horizontal direction: "+ horizontalDirection + ", "+ horizontalDirection.getHorizontalIndex());
+		switch (placementDirection) {
+			case NORTH://
+				this.uvRotateSouth = 1;
+				this.uvRotateNorth = 2;
+				this.uvRotateTop = 0;
+				this.uvRotateBottom = 0;
+				break;
+			case EAST://
+				this.uvRotateEast = 2;
+				this.uvRotateWest = 1;
+				this.uvRotateTop = 1;
+				this.uvRotateBottom = 2;
+				break;
+			case SOUTH://
+				this.uvRotateSouth = 2;
+				this.uvRotateNorth = 1;
+				this.uvRotateTop = 3;
+				this.uvRotateBottom = 3;
+				break;
+			case WEST://
+				this.uvRotateEast = 1;
+				this.uvRotateWest = 2;
+				this.uvRotateTop = 2;
+				this.uvRotateBottom = 1;
+				break;
+			case UP://
+				switch (horizontalDirection) {
+					case NORTH://
+						this.uvRotateTop = 0;
+						break;
+					case EAST://
+						this.uvRotateTop = 1;
+						break;
+					case SOUTH://
+						this.uvRotateTop = 3;
+						break;
+					case WEST://
+						this.uvRotateTop = 2;
+						break;
+				}
+				break;
+			case DOWN://
+				switch (horizontalDirection) {
+					case NORTH://
+						this.uvRotateBottom = 0;
+						break;
+					case EAST://
+						this.uvRotateBottom = 2;
+						break;
+					case SOUTH://
+						this.uvRotateBottom = 3;
+						break;
+					case WEST://
+						this.uvRotateBottom = 1;
+						break;
+				}
+				this.uvRotateEast = 3;
+				this.uvRotateWest = 3;
+				this.uvRotateSouth = 3;
+				this.uvRotateNorth = 3;
+				break;
+		}
 
-//		switch (placementDirection) {
-//			case NORTH://
-//				this.uvRotateEast = 0;
-//				this.uvRotateWest = 0;
-//				this.uvRotateTop = 0;
-//				this.uvRotateBottom = 0;
-//				break;
-//			case EAST://
-//				this.uvRotateSouth = 0;
-//				this.uvRotateNorth = 0;
-//				this.uvRotateTop = 0;
-//				this.uvRotateBottom = 0;
-//				break;
-//			case SOUTH://
-//				this.uvRotateEast = 0;
-//				this.uvRotateWest = 0;
-//				this.uvRotateTop = 0;
-//				this.uvRotateBottom = 0;
-//				break;
-//			case WEST://
-//				this.uvRotateSouth = 0;
-//				this.uvRotateNorth = 0;
-//				this.uvRotateTop = 0;
-//				this.uvRotateBottom = 0;
-//				break;
-//			case UP://
-//
-//				switch (horizontalDirection) {
-//					case NORTH://
-//						this.uvRotateTop = 0;
-//						break;
-//					case EAST://
-//						this.uvRotateTop = 0;
-//						break;
-//					case SOUTH://
-//						this.uvRotateTop = 0;
-//						break;
-//					case WEST://
-//						this.uvRotateTop = 0;
-//						break;
-//				}
-//				this.uvRotateEast = 0;
-//				this.uvRotateWest = 0;
-//				this.uvRotateSouth = 0;
-//				this.uvRotateNorth = 0;
-//				break;
-//			case DOWN://
-//				switch (horizontalDirection) {
-//					case NORTH://
-//						this.uvRotateBottom = 0;
-//						break;
-//					case EAST://
-//						this.uvRotateBottom = 0;
-//						break;
-//					case SOUTH://
-//						this.uvRotateBottom = 0;
-//						break;
-//					case WEST://
-//						this.uvRotateBottom = 0;
-//						break;
-//				}
-//				this.uvRotateEast = 0;
-//				this.uvRotateWest = 0;
-//				this.uvRotateSouth = 0;
-//				this.uvRotateNorth = 0;
-//				break;
+//		if (placementDirection == UP | placementDirection == DOWN){
+//			int rotation;
+//			switch (horizontalDirection){
+//				case NORTH:
+//					rotation = 0;
+//					break;
+//				case EAST:
+//					rotation = 1;
+//					break;
+//				case SOUTH:
+//					rotation = 3;
+//					break;
+//				default:
+//					rotation = 2;
+//			}
+//			this.uvRotateTop = rotation;
+//			this.uvRotateBottom = (rotation + 2) % 4;
+//			if (placementDirection == DOWN){
+//				this.uvRotateEast = 3;
+//				this.uvRotateWest = 3;
+//				this.uvRotateSouth = 3;
+//				this.uvRotateNorth = 3;
+//			}
 //		}
-		if (placementDirection == UP){
-			this.uvRotateTop = horizontalDirection.getHorizontalIndex();
-		}
-		else if (placementDirection == DOWN){
-			this.uvRotateBottom = horizontalDirection.getHorizontalIndex();
-		} else {
-			int rotation = placementDirection.getHorizontalIndex();
-			this.uvRotateEast = rotation;
-			this.uvRotateWest = rotation;
-			this.uvRotateSouth = rotation;
-			this.uvRotateNorth = rotation;
-			this.uvRotateTop = rotation;
-			this.uvRotateBottom = rotation;
-		}
-
-
+//		else {
+//			int rotation = placementDirection.getHorizontalIndex();
+//			this.uvRotateEast = rotation;
+//			this.uvRotateWest = rotation;
+//			this.uvRotateSouth = rotation;
+//			this.uvRotateNorth = rotation;
+//			this.uvRotateTop = rotation;
+//			this.uvRotateBottom = rotation;
+//		}
 
 		this.renderStandardBlock(block, x, y, z);
 		this.uvRotateEast = 0;
