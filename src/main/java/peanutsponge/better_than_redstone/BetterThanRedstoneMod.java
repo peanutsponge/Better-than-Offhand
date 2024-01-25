@@ -35,8 +35,7 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 	public static Block blockSignalConductor;
 	public static Block blockSignalDisplay;
 	public static Block blockSignalInverter;
-	public static Block blockSignalExtenderOn;
-	public static Block blockSignalExtenderOff;
+	public static Block blockSignalExtender;
     @Override
     public void onInitialize() {
         LOGGER.info("Better than redstone initialized.");
@@ -53,11 +52,11 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 			.setBlockModel(new BlockModelRenderBlocks(36))
 			.build(new BlockSignalDisplay("signal_display", blockNum++));
 		blockSignalInverter = signalBlockBuilder
+			.setBlockModel(new BlockModelRenderBlocks(36))
 			.build(new BlockSignalInverter("signal_inverter", blockNum++));
-		blockSignalExtenderOn = signalBlockBuilder
-			.build(new BlockSignalExtender("signal_extender_on", blockNum++, true));
-		blockSignalExtenderOff = signalBlockBuilder
-			.build(new BlockSignalExtender("signal_extender_off", blockNum++,false));
+		blockSignalExtender = signalBlockBuilder
+			.setBlockModel(new BlockModelRenderBlocks(36))
+			.build(new BlockSignalExtender("signal_extender", blockNum++));
 	}
 
 	@Override

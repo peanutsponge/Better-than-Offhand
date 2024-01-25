@@ -5,7 +5,6 @@ import net.minecraft.core.entity.EntityLiving;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
 import static peanutsponge.better_than_redstone.Signal.getMaxCurrent;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
@@ -24,7 +23,6 @@ public class BlockSignalDisplay extends BlockDirectional {
 	}
 
 	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {
-		LOGGER.info("onBlockPlaced: BlockSignalDisplay");
 		super.onBlockPlaced(world, x, y, z, side, entity, sideHeight);
 		this.propagateCurrent(world, x, y, z);
 	}
@@ -47,7 +45,7 @@ public class BlockSignalDisplay extends BlockDirectional {
 		int oldCurrent = getSignalCode(data);
 		int newCurrent = getMaxCurrent(world,x,y,z);
 		if (newCurrent != oldCurrent){
-			world.setBlockMetadata(x, y, z, makeDirectionAndSignalCode(getDirectionCode(data), newCurrent));
+			world.setBlockMetadata(x, y, z, makeMetaData(getDirectionCode(data), newCurrent));
 			world.notifyBlocksOfNeighborChange(x,y,z,this.id);
 		}
 	}
@@ -59,7 +57,7 @@ public class BlockSignalDisplay extends BlockDirectional {
 	 * @param signalCode        The signal to be combined.
 	 * @return The result of combining direction code and signal.
 	 */
-	public static int makeDirectionAndSignalCode(int directionCode, int signalCode) {
+	public static int makeMetaData(int directionCode, int signalCode) {
 		directionCode &= 0x0F;
 		signalCode &= 0x0F;
 		return directionCode | (signalCode<<4);
