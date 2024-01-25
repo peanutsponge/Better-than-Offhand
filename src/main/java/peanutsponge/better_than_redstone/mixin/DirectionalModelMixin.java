@@ -12,8 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.minecraft.core.util.helper.Direction.*;
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
 import static peanutsponge.better_than_redstone.BlockDirectional.*;
 
 @Mixin(value = RenderBlocks.class, remap = false)
@@ -46,8 +44,6 @@ public class DirectionalModelMixin{
 		int directionCode = getDirectionCode(data);
 		Direction placementDirection = getPlacementDirection(directionCode);
 		Direction horizontalDirection = getHorizontalDirection(directionCode);
-		LOGGER.info("Placement direction: "+ placementDirection + ", "+ placementDirection.getHorizontalIndex());
-		LOGGER.info("Horizontal direction: "+ horizontalDirection + ", "+ horizontalDirection.getHorizontalIndex());
 		switch (placementDirection) {
 			case NORTH://
 				this.uvRotateSouth = 1;
@@ -108,42 +104,9 @@ public class DirectionalModelMixin{
 				this.uvRotateWest = 3;
 				this.uvRotateSouth = 3;
 				this.uvRotateNorth = 3;
+
 				break;
 		}
-
-//		if (placementDirection == UP | placementDirection == DOWN){
-//			int rotation;
-//			switch (horizontalDirection){
-//				case NORTH:
-//					rotation = 0;
-//					break;
-//				case EAST:
-//					rotation = 1;
-//					break;
-//				case SOUTH:
-//					rotation = 3;
-//					break;
-//				default:
-//					rotation = 2;
-//			}
-//			this.uvRotateTop = rotation;
-//			this.uvRotateBottom = (rotation + 2) % 4;
-//			if (placementDirection == DOWN){
-//				this.uvRotateEast = 3;
-//				this.uvRotateWest = 3;
-//				this.uvRotateSouth = 3;
-//				this.uvRotateNorth = 3;
-//			}
-//		}
-//		else {
-//			int rotation = placementDirection.getHorizontalIndex();
-//			this.uvRotateEast = rotation;
-//			this.uvRotateWest = rotation;
-//			this.uvRotateSouth = rotation;
-//			this.uvRotateNorth = rotation;
-//			this.uvRotateTop = rotation;
-//			this.uvRotateBottom = rotation;
-//		}
 
 		this.renderStandardBlock(block, x, y, z);
 		this.uvRotateEast = 0;

@@ -1,45 +1,57 @@
 package peanutsponge.better_than_redstone;
 
+import net.minecraft.core.block.Block;
+import net.minecraft.core.block.material.Material;
+import net.minecraft.core.entity.EntityLiving;
 import net.minecraft.core.util.helper.Direction;
+import net.minecraft.core.util.helper.Side;
+import net.minecraft.core.world.World;
 
 import static net.minecraft.core.util.helper.Direction.*;
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
+import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
-public class BlockDirectional {
-	// Constants for bit masks
-	private static final int DIRECTION_MASK = 0xF0;
-	private static final int SIGNAL_MASK = 0x0F;
+public class BlockDirectional extends Block {
+	public int[] atlasIndices = new int[4];
+	public BlockDirectional(String key, int id, Material material) {
+		super(key, id, material);
 
-	/**
-	 * Combines the given direction code and signal to create a single integer of data.
-	 *
-	 * @param directionCode The direction code to be combined.
-	 * @param signal        The signal to be combined.
-	 * @return The result of combining direction code and signal.
-	 */
-	public static int makeDirectionAndSignalCode(int directionCode, int signalCode) {
-		directionCode &= SIGNAL_MASK;
-		signalCode &= SIGNAL_MASK;
-		return (directionCode << 4) | signalCode;
+		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, key + "_input.png");
+		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, key + "_side.png");
+		this.atlasIndices[3] = getOrCreateBlockTextureIndex(MOD_ID, key + "_output.png");
 	}
 
-	/**
-	 * Extracts the signal from the given data.
-	 *
-	 * @param data The input data containing both direction code and signal.
-	 * @return The extracted signal.
-	 */
-	public static int getSignalCode(int data) {
-		return data & SIGNAL_MASK;
+	public int getFaceTexture(int data) {
+		return this.atlasIndices[3];
 	}
+
+	@Override
+	public int getBlockTextureFromSideAndMetadata(Side side, int data) {
+		Direction placementDirection = getPlacementDirection(getDirectionCode(data));
+		if (side.getId() == placementDirection.getId()) { // face texture
+			return getFaceTexture(data);
+		} else if (side.getId() == placementDirection.getOpposite().getId()) {
+			return this.atlasIndices[0];
+		} else return this.atlasIndices[1]; //TODO differing side support
+	}
+	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {
+		LOGGER.info("onBlockPlaced: BlockDirectional");
+		Direction placementDirection = entity.getPlacementDirection(side).getOpposite();
+		Direction horizontalDirection = Direction.getHorizontalDirection(entity.yRot);
+		LOGGER.info("On block placed: " + horizontalDirection +" , "+ horizontalDirection.getHorizontalIndex());
+		world.setBlockMetadataWithNotify(x, y, z, makeDirectionCode(placementDirection, horizontalDirection));
+	}
+
 
 	/**
 	 * Extracts the direction code from the given data.
 	 *
-	 * @param data The input data containing both direction code and signal.
+	 * @param data The input data containing both direction code and other stuff.
 	 * @return The extracted direction code.
 	 */
 	public static int getDirectionCode(int data) {
-		return (data & DIRECTION_MASK) >> 4;
+		return data & 0x0F;
 	}
 
 	public static int makeDirectionCode(Direction placementDirection, Direction horizontalDirection) {

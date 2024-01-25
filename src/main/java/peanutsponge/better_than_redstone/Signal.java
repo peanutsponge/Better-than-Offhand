@@ -16,9 +16,8 @@ public class Signal {
 	public static int getCurrent(World world, int x, int y, int z) {
 		int blockId = world.getBlockId(x, y, z);
 		int data = world.getBlockMetadata(x, y, z);
-		LOGGER.info("getCurrentStrength: (" + x +","+ y+"," + z+") " + "[" + blockId +";"+data+"]");
+//		LOGGER.info("getCurrentStrength: (" + x +","+ y+"," + z+") " + "[" + blockId +";"+data+"]");
 		if (blockId == blockSignalConductor.id) {
-			LOGGER.info("TRIGGERED blockRedstoneConductor");
             return data%16;
 		}
         return 0;
