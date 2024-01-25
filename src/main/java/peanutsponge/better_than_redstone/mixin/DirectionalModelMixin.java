@@ -38,6 +38,14 @@ public class DirectionalModelMixin{
 			cir.setReturnValue(this.renderBlockDirectional(block, x, y, z));
 		}
 	}
+
+	/**
+	 * @param block
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
 	@Unique
 	public boolean renderBlockDirectional(Block block, int x, int y, int z){
 		int data = this.blockAccess.getBlockMetadata(x, y, z);

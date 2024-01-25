@@ -10,24 +10,24 @@ import org.spongepowered.asm.mixin.Overwrite;
 public class IndirectPowerDisableMixin {
 	World thisAs = (World) (Object) this;
 	/**
-	 * @author
-	 * @reason
+	 * @author peanutsponge
+	 * @reason removing indirect powering
 	 */
 	@Overwrite
 	public boolean isBlockIndirectlyProvidingPowerTo(int i, int j, int k, int l) {
 		return false;
 	}
 	/**
-	 * @author
-	 * @reason
+	 * @author peanutsponge
+	 * @reason removing indirect powering
 	 */
 	@Overwrite
 	public boolean isBlockIndirectlyGettingPowered(int i, int j, int k) {
 		return false;
 	}
 	/**
-	 * @author
-	 * @reason
+	 * @author peanutsponge
+	 * @reason removing indirect powering
 	 */
 	@Overwrite
 	public boolean isBlockProvidingPowerTo(int i, int j, int k, int l) {
