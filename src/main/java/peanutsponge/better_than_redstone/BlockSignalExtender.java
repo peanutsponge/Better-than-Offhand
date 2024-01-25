@@ -9,8 +9,7 @@ import net.minecraft.core.world.WorldSource;
 
 import java.util.Random;
 
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.blockSignalExtender;
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.*;
 import static peanutsponge.better_than_redstone.Signal.hasCurrent;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
@@ -31,9 +30,9 @@ public class BlockSignalExtender extends BlockDirectional {
 	public void updateTick(World world, int x, int y, int z, Random rand) {
 		int data = world.getBlockMetadata(x, y, z);
 		if (this.isOn(data) && !hasCurrent(world, x, y, z)) {
-			world.setBlockMetadataWithNotify(x, y, z, data);
+			setOn(world, x, y, z, 0);
 		} else if (!this.isOn(data)) {
-			world.setBlockMetadataWithNotify(x, y, z, data);
+			setOn(world, x, y, z, 1);
 			if (!hasCurrent(world, x, y, z)) {
 				world.scheduleBlockUpdate(x, y, z, blockSignalExtender.id, 1);
 			}
@@ -42,8 +41,7 @@ public class BlockSignalExtender extends BlockDirectional {
 
 
 	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {
-		Direction placementDirection = entity.getPlacementDirection(side).getOpposite();
-		world.setBlockMetadataWithNotify(x, y, z, placementDirection.getId());
+		super.onBlockPlaced(world, x,  y,  z, side, entity, sideHeight);
 		boolean hasCurrent = hasCurrent(world, x, y, z);
 		if (hasCurrent) {
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
@@ -60,14 +58,19 @@ public class BlockSignalExtender extends BlockDirectional {
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		}
 	}
-//	public boolean canProvidePower() {
-//		return false;
-//	}
-//	public boolean isPoweringTo(WorldSource blockAccess, int x, int y, int z, int side) {
-//		int data = blockAccess.getBlockMetadata(x, y, z);
-//		return this.isOn(data);
-//	}
-
+	public boolean canProvidePower() {
+		return true;
+	}
+	public boolean isPoweringTo(WorldSource blockAccess, int x, int y, int z, int side) {
+		int data = blockAccess.getBlockMetadata(x, y, z);
+		LOGGER.info("isPoweringTo" + data + this.isOn(data));
+		return this.isOn(data);
+	}
+public void setOn(World world, int x, int y, int z, int on) {
+	int data = world.getBlockMetadata(x, y, z);
+	int direction = getDirectionCode(data);
+	world.setBlockMetadataWithNotify(x, y, z, direction + (on * 16));
+}
 	public boolean isOn(int data) {
 		int on = data >> 4;
 		return (on == 1);
