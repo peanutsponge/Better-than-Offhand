@@ -1,24 +1,58 @@
 package peanutsponge.better_than_redstone;
 
 import net.minecraft.client.util.helper.Colors;
+import net.minecraft.core.block.Block;
 import net.minecraft.core.util.helper.Color;
+import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.world.World;
 
 import java.util.Random;
 
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
+import static net.minecraft.core.util.helper.Direction.getDirectionById;
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.blockSignalConductor;
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.blockSignalInverter;
+import static peanutsponge.better_than_redstone.BlockDirectional.getDirectionCode;
+import static peanutsponge.better_than_redstone.BlockDirectional.getPlacementDirection;
 
 public class Signal {
 	/**
 	 * Gets the current a block receives from a neighbor
 	 */
-	public static int getCurrent(World world, int x, int y, int z) {
+	public static int getCurrent(World world, int x, int y, int z, Direction direction) {
+		System.out.println("getCurrent(world, "+ x + ", " + y +", " + z + ", " + direction + ")");
+		switch (direction.getOpposite()) {
+			case DOWN://
+				y--;
+				break;
+			case UP:
+				y++;
+				break;
+			case NORTH://
+				z--;
+				break;
+			case SOUTH://
+				z++;
+				break;
+			case WEST://
+				x--;
+				break;
+			case EAST://
+				x++;
+				break;
+		}
 		int blockId = world.getBlockId(x, y, z);
 		int data = world.getBlockMetadata(x, y, z);
-//		LOGGER.info("getCurrentStrength: (" + x +","+ y+"," + z+") " + "[" + blockId +";"+data+"]");
-		if (blockId == blockSignalConductor.id) {
+		Direction blockDirection = getPlacementDirection(getDirectionCode(data));
+		System.out.println("( " + x +","+ y+"," + z+") " + "[" + blockId +";"+data+"]");
+		if (blockId == 0)
+			return 0;
+		else if (Block.blocksList[blockId].isPoweringTo(world, x, y , z, direction.getOpposite().getId()))
+			return 15;
+		else if (blockId == blockSignalConductor.id)
             return data%16;
+		else if (blockId == blockSignalInverter.id){
+			if (blockDirection == direction)
+				return (getSignalCode(data) + 1) % 16;
 		}
         return 0;
     }
@@ -27,23 +61,75 @@ public class Signal {
 	 */
 	public static int getMaxCurrent(World world, int x, int y, int z){
 		int maxCurrent = 0;
-		if (world.isBlockGettingPowered(x,y,z)){
-			return 15;
-		} else {
-			maxCurrent = Math.max(getCurrent(world, x + 1, y, z), maxCurrent);
-			maxCurrent = Math.max(getCurrent(world, x - 1, y, z), maxCurrent);
-			maxCurrent = Math.max(getCurrent(world, x, y + 1, z), maxCurrent);
-			maxCurrent = Math.max(getCurrent(world, x, y - 1, z), maxCurrent);
-			maxCurrent = Math.max(getCurrent(world, x, y, z + 1), maxCurrent);
-			maxCurrent = Math.max(getCurrent(world, x, y, z - 1), maxCurrent);
-			return maxCurrent;
+		for (int i=0; i< 6 ; i++){
+			maxCurrent = Math.max(getCurrent(world, x, y, z, getDirectionById(i)), maxCurrent);
 		}
+		return maxCurrent;
 	}
+	/**
+	 * Calculates the current a block receives from the input side
+	 */
+	public static int getInputCurrent(World world, int x, int y, int z){
+		int data = world.getBlockMetadata(x, y, z);
+		Direction placementDirection = getPlacementDirection(getDirectionCode(data));
+		return getCurrent(world, x, y, z, placementDirection);
+	}
+	/**
+	 * Calculates the highest current a block receives from the sides (not input and not output)
+	 */
+	public static int getSideCurrent(World world, int x, int y, int z){
+		int data = world.getBlockMetadata(x, y, z);
+		Direction[] sideDirections = new Direction[4];
+		Direction placementDirection = getPlacementDirection(getDirectionCode(data));
+		switch (placementDirection) {
+			case NORTH:
+			case SOUTH:
+				sideDirections[0] = Direction.WEST;
+				sideDirections[1] = Direction.EAST;
+				sideDirections[2] = Direction.UP;
+				sideDirections[3] = Direction.DOWN;
+				break;
+			case WEST:
+			case EAST:
+				sideDirections[0] = Direction.NORTH;
+				sideDirections[1] = Direction.SOUTH;
+				sideDirections[2] = Direction.UP;
+				sideDirections[3] = Direction.DOWN;
+				break;
+			case UP:
+			case DOWN:
+				sideDirections[0] = Direction.WEST;
+				sideDirections[1] = Direction.EAST;
+				sideDirections[2] = Direction.NORTH;
+				sideDirections[3] = Direction.SOUTH;
+				break;
+		}
+		int maxCurrent = 0;
+		for (int i=0; i< 4 ; i++){
+			maxCurrent = Math.max(getCurrent(world, x, y, z, sideDirections[i]), maxCurrent);
+		}
+		return maxCurrent;
+	}
+
+
+
 	/**
 	 * Calculates if a block receives current
 	 */
 	public static boolean hasCurrent(World world, int x, int y, int z) {
 		return getMaxCurrent(world, x, y, z) > 0;
+	}
+	/**
+	 * Calculates if a block receives input current
+	 */
+	public static boolean hasInputCurrent(World world, int x, int y, int z) {
+		return getInputCurrent(world, x, y, z) > 0;
+	}
+	/**
+	 * Calculates if a block receives side current
+	 */
+	public static boolean hasSideCurrent(World world, int x, int y, int z) {
+		return getSideCurrent(world, x, y, z) > 0;
 	}
 
 	public static void spawnParticles(World world, int x, int y, int z) {
@@ -89,5 +175,27 @@ public class Signal {
 			}
 
 		}
+	}
+	/**
+	 * Combines the given direction code and signal to create a single integer of data.
+	 *
+	 * @param directionCode The direction code to be combined.
+	 * @param signalCode        The signal to be combined.
+	 * @return The result of combining direction code and signal.
+	 */
+	public static int makeMetaData(int directionCode, int signalCode) {
+		directionCode &= 0x0F;
+		signalCode &= 0x0F;
+		return directionCode | (signalCode<<4);
+	}
+
+	/**
+	 * Extracts the signal from the given data.
+	 *
+	 * @param data The input data containing both direction code and signal.
+	 * @return The extracted signal.
+	 */
+	public static int getSignalCode(int data) {
+		return (data>>4) & 0x0F;
 	}
 }

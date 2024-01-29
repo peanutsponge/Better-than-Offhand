@@ -2,6 +2,7 @@ package peanutsponge.better_than_redstone;
 
 import net.minecraft.core.block.material.Material;
 import net.minecraft.core.entity.EntityLiving;
+import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 import net.minecraft.core.world.WorldSource;
@@ -9,7 +10,7 @@ import net.minecraft.core.world.WorldSource;
 import java.util.Random;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.*;
-import static peanutsponge.better_than_redstone.Signal.hasCurrent;
+import static peanutsponge.better_than_redstone.Signal.hasInputCurrent;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
 public class BlockSignalExtender extends BlockDirectional {
@@ -28,11 +29,11 @@ public class BlockSignalExtender extends BlockDirectional {
  	@Override
 	public void updateTick(World world, int x, int y, int z, Random rand) {
 		int data = world.getBlockMetadata(x, y, z);
-		if (this.isOn(data) && !hasCurrent(world, x, y, z)) {
+		if (this.isOn(data) && !hasInputCurrent(world, x, y, z)) {
 			setOn(world, x, y, z, 0);
 		} else if (!this.isOn(data)) {
 			setOn(world, x, y, z, 1);
-			if (!hasCurrent(world, x, y, z)) {
+			if (!hasInputCurrent(world, x, y, z)) {
 				world.scheduleBlockUpdate(x, y, z, this.id, 1);
 			}
 		}
@@ -41,8 +42,8 @@ public class BlockSignalExtender extends BlockDirectional {
 	@Override
 	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {
 		super.onBlockPlaced(world, x,  y,  z, side, entity, sideHeight);
-		boolean hasCurrent = hasCurrent(world, x, y, z);
-		if (hasCurrent) {
+		boolean hasInputCurrent = hasInputCurrent(world, x, y, z);
+		if (hasInputCurrent) {
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		}
 	}
@@ -50,7 +51,7 @@ public class BlockSignalExtender extends BlockDirectional {
  	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
 		int data = world.getBlockMetadata(x, y, z);
-		boolean flag = hasCurrent(world, x, y, z);
+		boolean flag = hasInputCurrent(world, x, y, z);
 		if (this.isOn(data) && !flag) {
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		} else if (!this.isOn(data) && flag) {
@@ -64,9 +65,9 @@ public class BlockSignalExtender extends BlockDirectional {
 
 	@Override
 	public boolean isPoweringTo(WorldSource blockAccess, int x, int y, int z, int side) {
-		int data = blockAccess.getBlockMetadata(x, y, z);//TODO Use side to only power output side
-		LOGGER.info("isPoweringTo" + data + this.isOn(data));
-		return this.isOn(data);
+		int data = blockAccess.getBlockMetadata(x, y, z);
+		Direction direction = getPlacementDirection(getDirectionCode(data));
+		return this.isOn(data) & side == direction.getOpposite().getId();
 	}
 
 	/**

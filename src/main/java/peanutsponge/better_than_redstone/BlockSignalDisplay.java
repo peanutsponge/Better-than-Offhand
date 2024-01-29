@@ -6,7 +6,7 @@ import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
-import static peanutsponge.better_than_redstone.Signal.getMaxCurrent;
+import static peanutsponge.better_than_redstone.Signal.*;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
 public class BlockSignalDisplay extends BlockDirectional {
@@ -43,33 +43,10 @@ public class BlockSignalDisplay extends BlockDirectional {
 	private void propagateCurrent(World world, int x, int y, int z) {
 		int data = world.getBlockMetadata(x, y, z);
 		int oldCurrent = getSignalCode(data);
-		int newCurrent = getMaxCurrent(world,x,y,z);
+		int newCurrent = getInputCurrent(world,x,y,z);
 		if (newCurrent != oldCurrent){
 			world.setBlockMetadata(x, y, z, makeMetaData(getDirectionCode(data), newCurrent));
 			world.notifyBlocksOfNeighborChange(x,y,z,this.id);
 		}
-	}
-
-	/**
-	 * Combines the given direction code and signal to create a single integer of data.
-	 *
-	 * @param directionCode The direction code to be combined.
-	 * @param signalCode        The signal to be combined.
-	 * @return The result of combining direction code and signal.
-	 */
-	public static int makeMetaData(int directionCode, int signalCode) {
-		directionCode &= 0x0F;
-		signalCode &= 0x0F;
-		return directionCode | (signalCode<<4);
-	}
-
-	/**
-	 * Extracts the signal from the given data.
-	 *
-	 * @param data The input data containing both direction code and signal.
-	 * @return The extracted signal.
-	 */
-	public static int getSignalCode(int data) {
-		return (data>>4) & 0x0F;
 	}
 }

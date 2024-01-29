@@ -36,10 +36,9 @@ public class BlockDirectional extends Block {
 		} else return this.atlasIndices[1]; //TODO differing side support
 	}
 	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {
-		LOGGER.info("onBlockPlaced: BlockDirectional");
 		Direction placementDirection = entity.getPlacementDirection(side).getOpposite();
 		Direction horizontalDirection = Direction.getHorizontalDirection(entity.yRot);
-		LOGGER.info("On block placed: " + horizontalDirection +" , "+ horizontalDirection.getHorizontalIndex());
+//		LOGGER.info("On block placed: " + horizontalDirection +" , "+ horizontalDirection.getHorizontalIndex());
 		world.setBlockMetadataWithNotify(x, y, z, makeDirectionCode(placementDirection, horizontalDirection));
 	}
 
