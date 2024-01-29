@@ -10,6 +10,7 @@ import net.minecraft.core.world.WorldSource;
 import java.util.Random;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.*;
+import static peanutsponge.better_than_redstone.Signal.getSideCurrent;
 import static peanutsponge.better_than_redstone.Signal.hasInputCurrent;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
@@ -51,10 +52,10 @@ public class BlockSignalExtender extends BlockDirectional {
  	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
 		int data = world.getBlockMetadata(x, y, z);
-		boolean flag = hasInputCurrent(world, x, y, z);
-		if (this.isOn(data) && !flag) {
-			world.scheduleBlockUpdate(x, y, z, this.id, 1);
-		} else if (!this.isOn(data) && flag) {
+		boolean hasInput = hasInputCurrent(world, x, y, z);
+		if (this.isOn(data) && !hasInput) {
+			world.scheduleBlockUpdate(x, y, z, this.id, getSideCurrent(world, x, y, z));
+		} else if (!this.isOn(data) && hasInput) {
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		}
 	}
