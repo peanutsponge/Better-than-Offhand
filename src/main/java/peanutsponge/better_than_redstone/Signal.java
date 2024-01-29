@@ -9,8 +9,7 @@ import net.minecraft.core.world.World;
 import java.util.Random;
 
 import static net.minecraft.core.util.helper.Direction.getDirectionById;
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.blockSignalConductor;
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.blockSignalInverter;
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.*;
 import static peanutsponge.better_than_redstone.BlockDirectional.getDirectionCode;
 import static peanutsponge.better_than_redstone.BlockDirectional.getPlacementDirection;
 
@@ -19,6 +18,7 @@ public class Signal {
 	 * Gets the current a block receives from a neighbor
 	 */
 	public static int getCurrent(World world, int x, int y, int z, Direction direction) {
+		int blockIdTarget = world.getBlockId(x, y, z);
 		System.out.println("getCurrent(world, "+ x + ", " + y +", " + z + ", " + direction + ")");
 		switch (direction.getOpposite()) {
 			case DOWN://
@@ -48,11 +48,15 @@ public class Signal {
 			return 0;
 		else if (Block.blocksList[blockId].isPoweringTo(world, x, y , z, direction.getOpposite().getId()))
 			return 15;
-		else if (blockId == blockSignalConductor.id)
-            return data%16;
-		else if (blockId == blockSignalInverter.id){
+		else if (blockId == blockSignalConductor.id){
+			if (blockIdTarget == blockSignalConductor.id)
+				data--;
+			return data%16;
+		}
+
+		else if (blockId == blockSignalRelay.id | blockId == blockSignalInverter.id | blockId == blockSignalAnalogInput.id){
 			if (blockDirection == direction)
-				return (getSignalCode(data) + 1) % 16;
+				return (getSignalCode(data)) % 16;
 		}
         return 0;
     }

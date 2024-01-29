@@ -18,7 +18,7 @@ public class BlockSignalDisplay extends BlockDirectional {
 		}
 	}
 	@Override
-	public int getFaceTexture(int data) {
+	public int getOutputTexture(int data) {
 		return this.atlasIndicesOutput[getSignalCode(data)];
 	}
 

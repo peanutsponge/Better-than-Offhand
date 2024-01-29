@@ -14,9 +14,9 @@ import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
 import static peanutsponge.better_than_redstone.Signal.*;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
-public class BlockSignalInverter extends BlockDirectional {
+public class BlockSignalRelay extends BlockDirectional {
 	public int[] atlasIndicesOutput = new int[16];
-	public BlockSignalInverter(String key, int id) {
+	public BlockSignalRelay(String key, int id) {
 		super(key, id, Material.metal);
 		for(int i = 0; i < 16; ++i) {
 			this.atlasIndicesOutput[i] = getOrCreateBlockTextureIndex(MOD_ID, "signal_conductor" + " ("+ i +").png");
@@ -59,6 +59,7 @@ public class BlockSignalInverter extends BlockDirectional {
 	}
 
 	public static int getOutputCurrent(World world, int x, int y, int z){
-		return (15 - getInputCurrent(world, x, y, z)) % 16;
+		return Math.max(0, getInputCurrent(world, x, y, z) - getSideCurrent(world, x, y, z));
+
 	}
 }

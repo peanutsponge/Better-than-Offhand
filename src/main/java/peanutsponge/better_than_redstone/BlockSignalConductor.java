@@ -43,9 +43,6 @@ public class BlockSignalConductor extends Block {
 	private void propagateCurrent(World world, int x, int y, int z) {
 		int oldCurrent = world.getBlockMetadata(x, y, z);
 		int newCurrent = getMaxCurrent(world,x,y,z);
-		if (newCurrent > 0 & !world.isBlockGettingPowered(x,y,z)){
-				newCurrent--;
-			}
 		if (newCurrent != oldCurrent){
 			world.setBlockMetadata(x, y, z, newCurrent);
 			world.notifyBlocksOfNeighborChange(x,y,z,this.id);

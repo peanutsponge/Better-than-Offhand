@@ -7,8 +7,9 @@ import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 
+import java.io.File;
+
 import static net.minecraft.core.util.helper.Direction.*;
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
@@ -17,22 +18,35 @@ public class BlockDirectional extends Block {
 	public BlockDirectional(String key, int id, Material material) {
 		super(key, id, material);
 
-		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, key + "_input.png");
-		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, key + "_side.png");
-		this.atlasIndices[3] = getOrCreateBlockTextureIndex(MOD_ID, key + "_output.png");
+		this.atlasIndices[0] = getTextureIndexWithFallback(key + "_input.png", "default_input.png");
+		this.atlasIndices[1] = getTextureIndexWithFallback(key + "_side.png", "default_side.png");
+		this.atlasIndices[3] = getTextureIndexWithFallback(key + "_output.png", "default_output.png");
 	}
 
-	public int getFaceTexture(int data) {
+	private int getTextureIndexWithFallback(String textureKey, String fallbackTextureKey) {
+		// Check if the file exists before obtaining the texture index.
+		if ((new File(textureKey)).exists()) {
+			return getOrCreateBlockTextureIndex(MOD_ID, textureKey);
+		} else {
+			// If the file doesn't exist, use the fallback texture index.
+			return getOrCreateBlockTextureIndex(MOD_ID, fallbackTextureKey);
+		}
+	}
+
+	public int getOutputTexture(int data) {
 		return this.atlasIndices[3];
+	}
+	public int getInputTexture(int data) {
+		return this.atlasIndices[0];
 	}
 
 	@Override
 	public int getBlockTextureFromSideAndMetadata(Side side, int data) {
 		Direction placementDirection = getPlacementDirection(getDirectionCode(data));
 		if (side.getId() == placementDirection.getId()) { // face texture
-			return getFaceTexture(data);
+			return getOutputTexture(data);
 		} else if (side.getId() == placementDirection.getOpposite().getId()) {
-			return this.atlasIndices[0];
+			return getInputTexture(data);
 		} else return this.atlasIndices[1]; //TODO differing side support
 	}
 	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {

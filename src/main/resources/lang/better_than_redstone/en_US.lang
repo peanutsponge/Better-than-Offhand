@@ -2,5 +2,12 @@ tile.better_than_redstone.signal_conductor.name = Redstone Conductor
 tile.better_than_redstone.signal_conductor.desc = Conducts Redstone
 tile.better_than_redstone.signal_extender.name = Redstone Extender
 tile.better_than_redstone.signal_extender.desc = Extends Redstone
+tile.better_than_redstone.signal_inverter.name = Redstone Inverter
+tile.better_than_redstone.signal_inverter.desc = Inverts Redstone
+tile.better_than_redstone.signal_relay.name = Redstone Relay
+tile.better_than_redstone.signal_relay.desc = Relays Redstone, Subtracts side current from input current
+
 tile.better_than_redstone.signal_display.name = Redstone Display
 tile.better_than_redstone.signal_display.desc = Displays Signal Strength
+tile.better_than_redstone.signal_analog_input.name = Redstone Input
+tile.better_than_redstone.signal_analog_input.desc = Input Signal Strength By Clicking

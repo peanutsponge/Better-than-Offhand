@@ -1,29 +1,29 @@
 package peanutsponge.better_than_redstone;
 
+import net.minecraft.core.block.Block;
 import net.minecraft.core.block.material.Material;
-import net.minecraft.core.entity.EntityLiving;
-import net.minecraft.core.util.helper.Direction;
+import net.minecraft.core.entity.player.EntityPlayer;
+import net.minecraft.core.sound.SoundType;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 import net.minecraft.core.world.WorldSource;
 
 import java.util.Random;
 
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.*;
-import static peanutsponge.better_than_redstone.Signal.getSideCurrent;
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
 import static peanutsponge.better_than_redstone.Signal.hasInputCurrent;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
-public class BlockSignalExtender extends BlockDirectional {
+public class BlockSignalPulse extends Block {
 	public int[] atlasIndicesOutput = new int[2];
 
-	public BlockSignalExtender(String key, int id) {
+	public BlockSignalPulse(String key, int id) {
 		super(key, id, Material.metal);
 		this.atlasIndicesOutput[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_off.png");
 		this.atlasIndicesOutput[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_on.png");
 		}
 	@Override
-	public int getOutputTexture(int data) {
+	public int getBlockTextureFromSideAndMetadata(Side side, int data) {
 		return this.isOn(data) ? this.atlasIndicesOutput[1] : this.atlasIndicesOutput[0];
 	}
 
@@ -40,21 +40,12 @@ public class BlockSignalExtender extends BlockDirectional {
 		}
 	}
 
-	@Override
-	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {
-		super.onBlockPlaced(world, x,  y,  z, side, entity, sideHeight);
-		boolean hasInputCurrent = hasInputCurrent(world, x, y, z);
-		if (hasInputCurrent) {
-			world.scheduleBlockUpdate(x, y, z, this.id, 1);
-		}
-	}
-
  	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
 		int data = world.getBlockMetadata(x, y, z);
 		boolean hasInput = hasInputCurrent(world, x, y, z);
 		if (this.isOn(data) && !hasInput) {
-			world.scheduleBlockUpdate(x, y, z, this.id, getSideCurrent(world, x, y, z));
+			world.scheduleBlockUpdate(x, y, z, this.id, 0);
 		} else if (!this.isOn(data) && hasInput) {
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		}
@@ -67,25 +58,23 @@ public class BlockSignalExtender extends BlockDirectional {
 	@Override
 	public boolean isPoweringTo(WorldSource blockAccess, int x, int y, int z, int side) {
 		int data = blockAccess.getBlockMetadata(x, y, z);
-		Direction direction = getPlacementDirection(getDirectionCode(data));
-		return this.isOn(data) & side == direction.getOpposite().getId();
+		return this.isOn(data);
+	}
+	@Override
+	public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
+		this.blockActivated(world,x,y,z,player);
+	}
+	@Override
+	public boolean blockActivated(World world, int x, int y, int z, EntityPlayer player) {
+		world.playSoundEffect(SoundType.WORLD_SOUNDS, (double) x + 0.5, (double) y + 0.5, (double) z + 0.5, "random.click", 0.3F, 0.6F);
+		return true;
 	}
 
-	/**
-	 * @param world
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param on
-	 */
 public void setOn(World world, int x, int y, int z, int on) {
-	int data = world.getBlockMetadata(x, y, z);
-	int direction = getDirectionCode(data);
-	world.setBlockMetadataWithNotify(x, y, z, direction + (on * 16));
+	world.setBlockMetadataWithNotify(x, y, z, on);
 	}
 
 	public boolean isOn(int data) {
-		int on = data >> 4;
-		return (on == 1);
+		return (data == 1);
 	}
 }
