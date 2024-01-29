@@ -19,8 +19,8 @@ public class BlockSignalToggle extends Block {
 
 	public BlockSignalToggle(String key, int id) {
 		super(key, id, Material.metal);
-		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_off.png");
-		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_on.png");
+		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_toggle_off.png");
+		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_toggle_on.png");
 		}
 	@Override
 	public int getBlockTextureFromSideAndMetadata(Side side, int data) {

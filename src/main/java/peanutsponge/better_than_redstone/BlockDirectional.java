@@ -17,20 +17,9 @@ public class BlockDirectional extends Block {
 	public int[] atlasIndices = new int[4];
 	public BlockDirectional(String key, int id, Material material) {
 		super(key, id, material);
-
-		this.atlasIndices[0] = getTextureIndexWithFallback(key + "_input.png", "default_input.png");
-		this.atlasIndices[1] = getTextureIndexWithFallback(key + "_side.png", "default_side.png");
-		this.atlasIndices[3] = getTextureIndexWithFallback(key + "_output.png", "default_output.png");
-	}
-
-	private int getTextureIndexWithFallback(String textureKey, String fallbackTextureKey) {
-		// Check if the file exists before obtaining the texture index.
-		if ((new File(textureKey)).exists()) {
-			return getOrCreateBlockTextureIndex(MOD_ID, textureKey);
-		} else {
-			// If the file doesn't exist, use the fallback texture index.
-			return getOrCreateBlockTextureIndex(MOD_ID, fallbackTextureKey);
-		}
+		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, "default_input.png");
+		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, "default_side.png");
+		this.atlasIndices[3] = getOrCreateBlockTextureIndex(MOD_ID, "default_output.png");
 	}
 
 	public int getOutputTexture(int data) {

@@ -19,8 +19,9 @@ public class BlockSignalExtender extends BlockDirectional {
 
 	public BlockSignalExtender(String key, int id) {
 		super(key, id, Material.metal);
-		this.atlasIndicesOutput[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_off.png");
-		this.atlasIndicesOutput[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_on.png");
+		this.atlasIndicesOutput[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_off.png");
+		this.atlasIndicesOutput[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_on.png");
+		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_side.png");
 		}
 	@Override
 	public int getOutputTexture(int data) {

@@ -21,6 +21,7 @@ public class BlockSignalInverter extends BlockDirectional {
 		for(int i = 0; i < 16; ++i) {
 			this.atlasIndicesOutput[i] = getOrCreateBlockTextureIndex(MOD_ID, "signal_conductor" + " ("+ i +").png");
 		}
+		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_inverter_side.png");
 	}
 	@Override
 	public int getOutputTexture(int data) {
