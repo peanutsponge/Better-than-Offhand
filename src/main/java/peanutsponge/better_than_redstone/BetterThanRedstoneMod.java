@@ -39,6 +39,7 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 	public static Block blockSignalExtender;
 	public static Block blockSignalAnalogInput;
 	public static Block blockSignalToggle;
+	public static Block blockSignalPulse;
     @Override
     public void onInitialize() {
         LOGGER.info("Better than redstone initialized.");
@@ -68,6 +69,8 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 			.build(new BlockSignalAnalogInput("signal_analog_input", blockNum++));
 		blockSignalToggle = signalBlockBuilder
 			.build(new BlockSignalToggle("signal_toggle", blockNum++));
+		blockSignalPulse = signalBlockBuilder
+			.build(new BlockSignalPulse("signal_pulse", blockNum++));
 	}
 
 	@Override

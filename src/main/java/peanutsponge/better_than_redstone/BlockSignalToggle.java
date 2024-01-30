@@ -36,7 +36,6 @@ public class BlockSignalToggle extends Block {
 		if (this.isPowered(data) != hasCurrent(world, x, y, z)) {//update the received power metadata, when mismatch
 			int power = hasCurrent(world, x, y, z)? 1 : 0;
 			setPowered(world, x, y, z, power);
-			world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		}
 	}
 
@@ -44,6 +43,7 @@ public class BlockSignalToggle extends Block {
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
 		world.scheduleBlockUpdate(x, y, z, this.id, 1);
 	}
+
 	@Override
 	public boolean canProvidePower() {
 		return true;

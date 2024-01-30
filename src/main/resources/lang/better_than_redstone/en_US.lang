@@ -9,5 +9,10 @@ tile.better_than_redstone.signal_relay.desc = Relays Redstone, Subtracts side cu
 
 tile.better_than_redstone.signal_display.name = Redstone Display
 tile.better_than_redstone.signal_display.desc = Displays Signal Strength
+
 tile.better_than_redstone.signal_analog_input.name = Redstone Input
 tile.better_than_redstone.signal_analog_input.desc = Input Signal Strength By Clicking
+tile.better_than_redstone.signal_toggle.name = Redstone Toggle
+tile.better_than_redstone.signal_toggle.desc = Toggles when pressed or powered
+tile.better_than_redstone.signal_pulse.name = Redstone Pulse
+tile.better_than_redstone.signal_pulse.desc = Pulses when pressed or powered, lower input strength gives a shorter pulse

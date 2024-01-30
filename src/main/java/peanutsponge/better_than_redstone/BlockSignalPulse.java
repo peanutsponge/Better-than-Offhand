@@ -11,43 +11,39 @@ import net.minecraft.core.world.WorldSource;
 import java.util.Random;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
-import static peanutsponge.better_than_redstone.Signal.hasInputCurrent;
+import static peanutsponge.better_than_redstone.Signal.getMaxCurrent;
+import static peanutsponge.better_than_redstone.Signal.hasCurrent;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
 public class BlockSignalPulse extends Block {
-	public int[] atlasIndicesOutput = new int[2];
+	public int[] atlasIndices = new int[2];
 
 	public BlockSignalPulse(String key, int id) {
 		super(key, id, Material.metal);
-		this.atlasIndicesOutput[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_off.png");
-		this.atlasIndicesOutput[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_extender_front_on.png");
+		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, "signal_pulse_off.png");
+		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, "signal_pulse_on.png");
 		}
 	@Override
 	public int getBlockTextureFromSideAndMetadata(Side side, int data) {
-		return this.isOn(data) ? this.atlasIndicesOutput[1] : this.atlasIndicesOutput[0];
+		return this.isOn(data) ? this.atlasIndices[1] : this.atlasIndices[0];
 	}
 
  	@Override
 	public void updateTick(World world, int x, int y, int z, Random rand) {
-		int data = world.getBlockMetadata(x, y, z);
-		if (this.isOn(data) && !hasInputCurrent(world, x, y, z)) {
-			setOn(world, x, y, z, 0);
-		} else if (!this.isOn(data)) {
-			setOn(world, x, y, z, 1);
-			if (!hasInputCurrent(world, x, y, z)) {
-				world.scheduleBlockUpdate(x, y, z, this.id, 1);
-			}
-		}
+		setOn(world, x, y, z, 0);
 	}
 
  	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
 		int data = world.getBlockMetadata(x, y, z);
-		boolean hasInput = hasInputCurrent(world, x, y, z);
-		if (this.isOn(data) && !hasInput) {
-			world.scheduleBlockUpdate(x, y, z, this.id, 0);
-		} else if (!this.isOn(data) && hasInput) {
-			world.scheduleBlockUpdate(x, y, z, this.id, 1);
+		if (!this.isPowered(data) && hasCurrent(world, x, y, z)) {//toggle on high
+			setOn(world, x, y, z, 1);
+			world.scheduleBlockUpdate(x, y, z, this.id, getMaxCurrent(world, x, y, z));
+		}
+		if (this.isPowered(data) != hasCurrent(world, x, y, z)) {//update the received power metadata, when mismatch
+			int power = hasCurrent(world, x, y, z)? 1 : 0;
+			setPowered(world, x, y, z, power);
+
 		}
 	}
 	@Override
@@ -66,15 +62,39 @@ public class BlockSignalPulse extends Block {
 	}
 	@Override
 	public boolean blockActivated(World world, int x, int y, int z, EntityPlayer player) {
-		world.playSoundEffect(SoundType.WORLD_SOUNDS, (double) x + 0.5, (double) y + 0.5, (double) z + 0.5, "random.click", 0.3F, 0.6F);
+		setOn(world, x, y, z, 1);
+		world.scheduleBlockUpdate(x, y, z, this.id, 15);
 		return true;
 	}
 
-public void setOn(World world, int x, int y, int z, int on) {
-	world.setBlockMetadataWithNotify(x, y, z, on);
-	}
-
+	/**
+	 * Returns the on state from the metadata
+	 */
 	public boolean isOn(int data) {
-		return (data == 1);
+		return ((data%2) == 1);
+	}
+	/**
+	 * Returns the received power state from the metadata
+	 */
+	public boolean isPowered(int data) {
+		return ((data>>1) == 1);
+	}
+	/**
+	 * Sets the on state to the metadata, with 0 = off and 1 = on
+	 */
+	public void setOn(World world, int x, int y, int z, int on) {
+		world.playSoundEffect(SoundType.WORLD_SOUNDS, (double) x + 0.5, (double) y + 0.5, (double) z + 0.5, "random.click", 0.3F, 0.6F);
+		int data = world.getBlockMetadata(x, y, z);
+		int newData = isPowered(data)? on + 2 : on ; //on/off is on the right most bit
+		world.setBlockMetadataWithNotify(x, y, z, newData);
+
+	}
+	/**
+	 * Sets the received power state to the metadata, with 0 = not receiving, and 1 = receiving
+	 */
+	public void setPowered(World world, int x, int y, int z, int powered) {
+		int data = world.getBlockMetadata(x, y, z);
+		int newData = isOn(data)? powered * 2 + 1 : powered * 2; //received power is on the second to right most bit
+		world.setBlockMetadataWithNotify(x, y, z, newData);
 	}
 }
