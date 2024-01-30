@@ -28,12 +28,12 @@ public class BlockSignalToggle extends Block {
 	}
 
  	@Override
-	public void updateTick(World world, int x, int y, int z, Random rand) {//TODO Fix conductors toggling it off immediately
+	public void updateTick(World world, int x, int y, int z, Random rand) {
 		int data = world.getBlockMetadata(x, y, z);
 		if (!this.isPowered(data) && hasCurrent(world, x, y, z)) {//toggle on high
 			toggleOn(world, x, y, z);
 		}
-		if (this.isPowered(data) != hasCurrent(world, x, y, z)) {//toggle on high
+		if (this.isPowered(data) != hasCurrent(world, x, y, z)) {//update the received power metadata, when mismatch
 			int power = hasCurrent(world, x, y, z)? 1 : 0;
 			setPowered(world, x, y, z, power);
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
@@ -63,30 +63,44 @@ public class BlockSignalToggle extends Block {
 		toggleOn(world, x, y, z);
 		return true;
 	}
-
+	/**
+	 * Toggles the on state and plays a sound
+	 */
 public void toggleOn(World world, int x, int y, int z) {
 	world.playSoundEffect(SoundType.WORLD_SOUNDS, (double) x + 0.5, (double) y + 0.5, (double) z + 0.5, "random.click", 0.3F, 0.6F);
 	int data = world.getBlockMetadata(x, y, z);
+	setPowered(world, x, y, z, 1); //Important to prevent same tick signals to toggle it again
 	if (!this.isOn(data))
 		this.setOn(world, x, y, z, 1);
 	else
 		this.setOn(world, x, y, z, 0);
 	}
-
+	/**
+	 * Returns the on state from the metadata
+	 */
 	public boolean isOn(int data) {
 		return ((data%2) == 1);
 	}
+	/**
+	 * Returns the received power state from the metadata
+	 */
 	public boolean isPowered(int data) {
 		return ((data>>1) == 1);
 	}
+	/**
+	 * Sets the on state to the metadata, with 0 = off and 1 = on
+	 */
 	public void setOn(World world, int x, int y, int z, int on) {
 		int data = world.getBlockMetadata(x, y, z);
-		int newData = isPowered(data)? on + 2 : on ;
+		int newData = isPowered(data)? on + 2 : on ; //on/off is on the right most bit
 		world.setBlockMetadataWithNotify(x, y, z, newData);
 	}
+	/**
+	 * Sets the received power state to the metadata, with 0 = not receiving, and 1 = receiving
+	 */
 	public void setPowered(World world, int x, int y, int z, int powered) {
 		int data = world.getBlockMetadata(x, y, z);
-		int newData = isOn(data)? powered * 2 + 1 : powered * 2;
+		int newData = isOn(data)? powered * 2 + 1 : powered * 2; //received power is on the second to right most bit
 		world.setBlockMetadataWithNotify(x, y, z, newData);
 	}
 }
