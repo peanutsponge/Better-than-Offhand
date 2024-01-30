@@ -61,6 +61,7 @@ public class BlockSignalToggle extends Block {
 	@Override
 	public boolean blockActivated(World world, int x, int y, int z, EntityPlayer player) {
 		toggleOn(world, x, y, z);
+		world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		return true;
 	}
 	/**

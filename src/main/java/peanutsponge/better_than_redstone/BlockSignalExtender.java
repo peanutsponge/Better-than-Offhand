@@ -10,8 +10,7 @@ import net.minecraft.core.world.WorldSource;
 import java.util.Random;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.*;
-import static peanutsponge.better_than_redstone.Signal.getSideCurrent;
-import static peanutsponge.better_than_redstone.Signal.hasInputCurrent;
+import static peanutsponge.better_than_redstone.Signal.*;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
 public class BlockSignalExtender extends BlockDirectional {
@@ -31,13 +30,10 @@ public class BlockSignalExtender extends BlockDirectional {
  	@Override
 	public void updateTick(World world, int x, int y, int z, Random rand) {
 		int data = world.getBlockMetadata(x, y, z);
-		if (this.isOn(data) && !hasInputCurrent(world, x, y, z)) {
+		if (this.isOn(data) && !hasInputCurrent(world, x, y, z)) { // turn off
 			setOn(world, x, y, z, 0);
-		} else if (!this.isOn(data)) {
+		} else if (!this.isOn(data) && hasInputCurrent(world, x, y, z)) { // turn on
 			setOn(world, x, y, z, 1);
-			if (!hasInputCurrent(world, x, y, z)) {
-				world.scheduleBlockUpdate(x, y, z, this.id, 1);
-			}
 		}
 	}
 
@@ -54,9 +50,9 @@ public class BlockSignalExtender extends BlockDirectional {
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
 		int data = world.getBlockMetadata(x, y, z);
 		boolean hasInput = hasInputCurrent(world, x, y, z);
-		if (this.isOn(data) && !hasInput) {
-			world.scheduleBlockUpdate(x, y, z, this.id, getSideCurrent(world, x, y, z));
-		} else if (!this.isOn(data) && hasInput) {
+		if (this.isOn(data) && !hasInput) { //turn off
+			world.scheduleBlockUpdate(x, y, z, this.id, getSumSideCurrent(world, x, y, z));
+		} else if (!this.isOn(data) && hasInput) { //turn on
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		}
 	}
@@ -72,13 +68,6 @@ public class BlockSignalExtender extends BlockDirectional {
 		return this.isOn(data) & side == direction.getOpposite().getId();
 	}
 
-	/**
-	 * @param world
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param on
-	 */
 public void setOn(World world, int x, int y, int z, int on) {
 	int data = world.getBlockMetadata(x, y, z);
 	int direction = getDirectionCode(data);

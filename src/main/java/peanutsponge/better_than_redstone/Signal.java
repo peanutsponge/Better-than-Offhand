@@ -6,6 +6,7 @@ import net.minecraft.core.util.helper.Color;
 import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.world.World;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import static net.minecraft.core.util.helper.Direction.getDirectionById;
@@ -81,7 +82,23 @@ public class Signal {
 	/**
 	 * Calculates the highest current a block receives from the sides (not input and not output)
 	 */
-	public static int getSideCurrent(World world, int x, int y, int z){
+	public static int getMaxSideCurrent(World world, int x, int y, int z){
+		return Arrays.stream(getSideCurrents(world, x, y, z))
+			.max()
+			.getAsInt();
+	}
+	/**
+	 * Calculates the sum of the currents a block receives from the sides (not input and not output)
+	 */
+	public static int getSumSideCurrent(World world, int x, int y, int z){
+		return Arrays.stream(getSideCurrents(world, x, y, z))
+			.sum();
+	}
+	/**
+	 * Calculates all currents a block receives from the sides (not input and not output)
+	 */
+	public static int[] getSideCurrents(World world, int x, int y, int z){
+		int[] sideCurrents = new int[4];
 		int data = world.getBlockMetadata(x, y, z);
 		Direction[] sideDirections = new Direction[4];
 		Direction placementDirection = getPlacementDirection(getDirectionCode(data));
@@ -108,11 +125,10 @@ public class Signal {
 				sideDirections[3] = Direction.SOUTH;
 				break;
 		}
-		int maxCurrent = 0;
 		for (int i=0; i< 4 ; i++){
-			maxCurrent = Math.max(getCurrent(world, x, y, z, sideDirections[i]), maxCurrent);
+			sideCurrents[i] = getCurrent(world, x, y, z, sideDirections[i]);
 		}
-		return maxCurrent;
+		return sideCurrents;
 	}
 
 
@@ -133,7 +149,7 @@ public class Signal {
 	 * Calculates if a block receives side current
 	 */
 	public static boolean hasSideCurrent(World world, int x, int y, int z) {
-		return getSideCurrent(world, x, y, z) > 0;
+		return getMaxSideCurrent(world, x, y, z) > 0;
 	}
 
 	public static void spawnParticles(World world, int x, int y, int z) {

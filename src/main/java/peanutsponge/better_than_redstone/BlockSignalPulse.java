@@ -36,14 +36,13 @@ public class BlockSignalPulse extends Block {
  	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
 		int data = world.getBlockMetadata(x, y, z);
-		if (!this.isPowered(data) && hasCurrent(world, x, y, z)) {//toggle on high
+		if (!this.isOn(data) && !this.isPowered(data) && hasCurrent(world, x, y, z)) {//toggle on high
 			setOn(world, x, y, z, 1);
 			world.scheduleBlockUpdate(x, y, z, this.id, getMaxCurrent(world, x, y, z));
 		}
 		if (this.isPowered(data) != hasCurrent(world, x, y, z)) {//update the received power metadata, when mismatch
 			int power = hasCurrent(world, x, y, z)? 1 : 0;
 			setPowered(world, x, y, z, power);
-
 		}
 	}
 	@Override

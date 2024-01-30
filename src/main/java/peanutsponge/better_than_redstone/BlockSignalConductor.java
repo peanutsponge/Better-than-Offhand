@@ -29,34 +29,31 @@ public class BlockSignalConductor extends Block {
 
 	public void onBlockAdded(World world, int x, int y, int z) {
 		super.onBlockAdded(world, x, y, z);
-		this.propagateCurrent(world, x, y, z);
+		this.updateCurrent(world, x, y, z);
 	}
 
 
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
-		this.propagateCurrent(world, x, y, z);
+		this.updateCurrent(world, x, y, z);
 		super.onNeighborBlockChange(world, x, y, z, blockId);
 	}
 	/**
 	 * Calculates the current it should have, updates its metadata accordingly and notifies neighbors
 	 */
-	private void propagateCurrent(World world, int x, int y, int z) {
+	private void updateCurrent(World world, int x, int y, int z) {
 		int oldCurrent = world.getBlockMetadata(x, y, z);
 		int newCurrent = getMaxCurrent(world,x,y,z);
 		if (newCurrent != oldCurrent){
-			world.setBlockMetadata(x, y, z, newCurrent);
-			world.notifyBlocksOfNeighborChange(x,y,z,this.id);
+			world.setBlockMetadataWithNotify(x, y, z, newCurrent);
 		}
-//		LOGGER.info("Done PropagateCurrent (" + x +","+ y+"," + z+")\n old & new -> out:" + oldCurrent + " & " + newCurrent + " -> " + world.getBlockMetadata(x, y, z));
 	}
 
 
 	public void randomDisplayTick(World world, int x, int y, int z, Random rand) {
-		int l0 = world.getBlockMetadata(x, y, z);
-		if (l0>0){ //Should roll random number and compare against current
+		int current = world.getBlockMetadata(x, y, z);
+		int random = rand.nextInt(16);
+		if (current > random){
 			spawnParticles(world, x, y, z);
 		}
 	}
-
-
 }

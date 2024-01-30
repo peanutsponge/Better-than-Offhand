@@ -35,9 +35,7 @@ public class BlockSignalInverter extends BlockDirectional {
 		int directionCode = getDirectionCode(data);
 		int signalGot = getOutputCurrent(world, x, y, z);
 		if (signalCode != signalGot) {
-			LOGGER.info("\nsignal: " + signalCode + "\nmaxSignal: " + signalGot+ "\nmeta made: "+makeMetaData(directionCode, signalGot));
 			world.setBlockMetadataWithNotify(x, y, z, makeMetaData(directionCode, signalGot));
-			LOGGER.info("\nupdated signal: " + getSignalCode(world.getBlockMetadata(x, y, z)) + "\nmaxSignal: " + getOutputCurrent(world, x, y, z)+"\nmeta set: "+world.getBlockMetadata(x, y, z));
 			world.scheduleBlockUpdate(x, y, z, this.id, 1);
 		}
 	}
@@ -60,6 +58,6 @@ public class BlockSignalInverter extends BlockDirectional {
 	}
 
 	public static int getOutputCurrent(World world, int x, int y, int z){
-		return (15 - getInputCurrent(world, x, y, z)) % 16;
+		return Math.max(0, 15 - getInputCurrent(world, x, y, z) - getSumSideCurrent(world, x, y, z));
 	}
 }
