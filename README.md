@@ -1,28 +1,50 @@
-# Example Mod
+# Better Than Redstone 
+Redstone but 3-Dimensional!
+### THIS MOD IS CURRENTLY ONLY INTENDED FOR NEW CREATIVE WORLDS
+## Conductor
+Conducts redstone, signal level is decreased between adjestent conductors.
 
-Template for making Babric mods for BTA!
+## Extender
+Any input signal results in maximum signal output.
 
-**Note: *DO NOT fork this repository unless you want to contribute!***
+## Relay
+Any input signal results in identical signal output.
 
-## Prerequisites
-- JDK for Java 17 ([Eclipse Temurin](https://adoptium.net/temurin/releases/) recommended)
-- IntelliJ IDEA
-- Minecraft Development plugin (Optional, but highly recommended)
+Subtract side current (sum of signal received by the sides) from the input.
 
-## Setup instructions
-   
+## Inverter
+Any input signal results in inverted signal output.
 
-1. Click the `Use this template` button on this repo's page above. Choose `Create a new repository`, you will be redirected to a new page. Enter your repo's name and description, and hit `Create repository`.  
-   To get your project, open IntelliJ IDEA and click `Get from VCS`. Select `Repository URL` and enter your repo's url
+Adds side current to the input before inverting it.
 
-2. After the project has finished importing, close it and open it again.  
-   If that does not work, open the right sidebar with `Gradle` on it, open `Tasks` > `fabric` and run `ideaSyncTask`.
+## Display
+Displays conductors signal strength.
 
-3. Create a new run configuration by going in `Run > Edit Configurations`.  
-   Then click on the plus icon and select Gradle. In the `Tasks and Arguments` field enter `build`.  
-   Running it will build your finished jar files and put them in `build/libs/`.
+## Input
+Outputs a signal in range 0-15.
 
-4. Lastly, open `File` > `Settings` and head to `Build, Execution, Development` > `Build Tools` > `Gradle`.  
-   Make sure `Build and run using` and `Run tests using` is set to `Gradle`.
+Clicking increases output signal strength by 1.
 
-5. Done! Now, all that's left is to change every mention of `examplemod` and `turniplabs` to your own mod id and mod group, respectively. Happy modding!
+## Pulse
+When clicked emits a 15 tick pulse.
+
+When signal received emits a # tick pulse, with # being the signal strength.
+
+
+## Toggle
+When clicked toggles on and off.
+
+On high signal change received toggles on and off.
+
+
+
+### Vanilla changes
+Indirect power does not exist anymore. The new components work better with this change.
+
+Old components don't function : Button, Lever, Pressure Plate, Torch, Repeater, Dust.
+
+Piston, Lamp, Noteblock, and Motion sensor still work. 
+
+Dispensers, trapdoors, rails, and tnt will be made functional soon.
+
+
