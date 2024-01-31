@@ -5,34 +5,34 @@ import com.mojang.nbt.ListTag;
 import java.util.Random;
 
 import net.minecraft.core.block.entity.TileEntity;
+import net.minecraft.core.block.entity.TileEntityFurnace;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.player.inventory.IInventory;
 
 public class TileEntityPipe extends TileEntity implements IInventory {
-	private ItemStack[] pipeContents = new ItemStack[1];
-	private Random pipeRandom = new Random();
+	private ItemStack pipeContents;
 
 	public int getSizeInventory() {
 		return 1;
 	}
 
 	public ItemStack getStackInSlot(int i) {
-		return this.pipeContents[i];
+		return this.pipeContents;
 	}
 
 	public ItemStack decrStackSize(int i, int j) {
-		if (this.pipeContents[i] != null) {
+		if (this.pipeContents != null) {
 			ItemStack itemstack1;
-			if (this.pipeContents[i].stackSize <= j) {
-				itemstack1 = this.pipeContents[i];
-				this.pipeContents[i] = null;
+			if (this.pipeContents.stackSize <= j) {
+				itemstack1 = this.pipeContents;
+				this.pipeContents = null;
 				this.onInventoryChanged();
 				return itemstack1;
 			} else {
-				itemstack1 = this.pipeContents[i].splitStack(j);
-				if (this.pipeContents[i].stackSize <= 0) {
-					this.pipeContents[i] = null;
+				itemstack1 = this.pipeContents.splitStack(j);
+				if (this.pipeContents.stackSize <= 0) {
+					this.pipeContents = null;
 				}
 
 				this.onInventoryChanged();
@@ -43,25 +43,18 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 		}
 	}
 
-	public ItemStack getRandomStackFromInventory() {
-		int i = -1;
-		int j = 1;
-
-		for(int k = 0; k < this.pipeContents.length; ++k) {
-			if (this.pipeContents[k] != null && this.pipeRandom.nextInt(j++) == 0) {
-				i = k;
-			}
+	public void addToStackInSlot(ItemStack itemstack){
+		if (this.pipeContents == null){
+			this.pipeContents = itemstack;
+		} else if (itemstack != null && itemstack.canStackWith(this.pipeContents)) {
+			this.pipeContents.stackSize += itemstack.stackSize;
 		}
-
-		if (i >= 0) {
-			return this.decrStackSize(i, 1);
-		} else {
-			return null;
+		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit()) {
+			itemstack.stackSize = this.getInventoryStackLimit();
 		}
 	}
-
 	public void setInventorySlotContents(int i, ItemStack itemstack) {
-		this.pipeContents[i] = itemstack;
+		this.pipeContents = itemstack;
 		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit()) {
 			itemstack.stackSize = this.getInventoryStackLimit();
 		}
@@ -76,13 +69,11 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 	public void readFromNBT(CompoundTag nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
 		ListTag nbttaglist = nbttagcompound.getList("Items");
-		this.pipeContents = new ItemStack[this.getSizeInventory()];
-
 		for(int i = 0; i < nbttaglist.tagCount(); ++i) {
 			CompoundTag nbttagcompound1 = (CompoundTag)nbttaglist.tagAt(i);
 			int j = nbttagcompound1.getByte("Slot") & 255;
-			if (j < this.pipeContents.length) {
-				this.pipeContents[j] = ItemStack.readItemStackFromNbt(nbttagcompound1);
+			if (j < 1) {
+				this.pipeContents = ItemStack.readItemStackFromNbt(nbttagcompound1);
 			}
 		}
 
@@ -91,14 +82,12 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 	public void writeToNBT(CompoundTag nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
 		ListTag nbttaglist = new ListTag();
+		if (this.pipeContents != null) {
+			CompoundTag nbttagcompound1 = new CompoundTag();
+			nbttagcompound1.putByte("Slot", (byte)0);
+			this.pipeContents.writeToNBT(nbttagcompound1);
+			nbttaglist.addTag(nbttagcompound1);
 
-		for(int i = 0; i < this.pipeContents.length; ++i) {
-			if (this.pipeContents[i] != null) {
-				CompoundTag nbttagcompound1 = new CompoundTag();
-				nbttagcompound1.putByte("Slot", (byte)i);
-				this.pipeContents[i].writeToNBT(nbttagcompound1);
-				nbttaglist.addTag(nbttagcompound1);
-			}
 		}
 
 		nbttagcompound.put("Items", nbttaglist);
@@ -118,4 +107,6 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 
 	public void sortInventory() {
 	}
+
+
 }

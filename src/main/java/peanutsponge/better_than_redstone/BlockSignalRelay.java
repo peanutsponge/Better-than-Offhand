@@ -9,7 +9,6 @@ import net.minecraft.core.world.WorldSource;
 
 import java.util.Random;
 
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
 import static peanutsponge.better_than_redstone.Signal.*;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
@@ -32,7 +31,7 @@ public class BlockSignalRelay extends BlockDirectional {
 	public void updateTick(World world, int x, int y, int z, Random rand) {
 		int data = world.getBlockMetadata(x, y, z);
 		int signalCode = getSignalCode(data);
-		int directionCode = getDirectionCode(data);
+		int directionCode = Directions.getDirectionCode(data);
 		int signalGot = getOutputCurrent(world, x, y, z);
 		if (signalCode != signalGot) {
 			world.setBlockMetadataWithNotify(x, y, z, makeMetaData(directionCode, signalGot));
@@ -53,7 +52,7 @@ public class BlockSignalRelay extends BlockDirectional {
 	@Override
 	public boolean isPoweringTo(WorldSource blockAccess, int x, int y, int z, int side) {
 		int data = blockAccess.getBlockMetadata(x, y, z);
-		Direction direction = getPlacementDirection(getDirectionCode(data));
+		Direction direction = Directions.getPlacementDirection(Directions.getDirectionCode(data));
 		return getSignalCode(data) == 15 & side == direction.getOpposite().getId();
 	}
 

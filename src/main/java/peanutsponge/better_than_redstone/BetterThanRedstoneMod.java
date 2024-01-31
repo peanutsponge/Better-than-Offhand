@@ -7,6 +7,8 @@ import net.minecraft.core.block.tag.BlockTags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import peanutsponge.better_than_redstone.pipe.BlockPipe;
+import peanutsponge.better_than_redstone.pipe.GuiPipe;
+import peanutsponge.better_than_redstone.pipe.TileEntityPipe;
 import turniplabs.halplibe.util.GameStartEntrypoint;
 import turniplabs.halplibe.util.RecipeEntrypoint;
 import turniplabs.halplibe.helper.*;
@@ -78,6 +80,8 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 		blockPipe = signalBlockBuilder
 			.setBlockModel(new BlockModelRenderBlocks(36))
 			.build(new BlockPipe("pipe", blockNum++));
+
+		EntityHelper.Core.createTileEntity(TileEntityPipe.class,"Pipe");
 	}
 
 	@Override

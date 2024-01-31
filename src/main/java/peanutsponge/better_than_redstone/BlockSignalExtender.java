@@ -64,13 +64,13 @@ public class BlockSignalExtender extends BlockDirectional {
 	@Override
 	public boolean isPoweringTo(WorldSource blockAccess, int x, int y, int z, int side) {
 		int data = blockAccess.getBlockMetadata(x, y, z);
-		Direction direction = getPlacementDirection(getDirectionCode(data));
+		Direction direction = Directions.getPlacementDirection(Directions.getDirectionCode(data));
 		return this.isOn(data) & side == direction.getOpposite().getId();
 	}
 
 public void setOn(World world, int x, int y, int z, int on) {
 	int data = world.getBlockMetadata(x, y, z);
-	int direction = getDirectionCode(data);
+	int direction = Directions.getDirectionCode(data);
 	world.setBlockMetadataWithNotify(x, y, z, direction + (on * 16));
 	}
 

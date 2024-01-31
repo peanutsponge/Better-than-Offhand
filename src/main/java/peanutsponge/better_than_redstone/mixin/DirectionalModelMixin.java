@@ -11,8 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import static peanutsponge.better_than_redstone.BlockDirectional.*;
+import peanutsponge.better_than_redstone.Directions;
 
 @Mixin(value = RenderBlocks.class, remap = false)
 public class DirectionalModelMixin{
@@ -49,9 +48,9 @@ public class DirectionalModelMixin{
 	@Unique
 	public boolean renderBlockDirectional(Block block, int x, int y, int z){
 		int data = this.blockAccess.getBlockMetadata(x, y, z);
-		int directionCode = getDirectionCode(data);
-		Direction placementDirection = getPlacementDirection(directionCode);
-		Direction horizontalDirection = getHorizontalDirection(directionCode);
+		int directionCode = Directions.getDirectionCode(data);
+		Direction placementDirection = Directions.getPlacementDirection(directionCode);
+		Direction horizontalDirection = Directions.getHorizontalDirection(directionCode);
 		switch (placementDirection) {
 			case NORTH://
 				this.uvRotateSouth = 1;

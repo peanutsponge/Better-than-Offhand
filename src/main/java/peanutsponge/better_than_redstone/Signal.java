@@ -11,8 +11,8 @@ import java.util.Random;
 
 import static net.minecraft.core.util.helper.Direction.getDirectionById;
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.*;
-import static peanutsponge.better_than_redstone.BlockDirectional.getDirectionCode;
-import static peanutsponge.better_than_redstone.BlockDirectional.getPlacementDirection;
+import static peanutsponge.better_than_redstone.Directions.getDirectionCode;
+import static peanutsponge.better_than_redstone.Directions.getPlacementDirection;
 
 public class Signal {
 	/**

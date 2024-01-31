@@ -45,7 +45,7 @@ public class BlockSignalDisplay extends BlockDirectional {
 		int oldCurrent = getSignalCode(data);
 		int newCurrent = getInputCurrent(world,x,y,z);
 		if (newCurrent != oldCurrent){
-			world.setBlockMetadata(x, y, z, makeMetaData(getDirectionCode(data), newCurrent));
+			world.setBlockMetadata(x, y, z, makeMetaData(Directions.getDirectionCode(data), newCurrent));
 			world.notifyBlocksOfNeighborChange(x,y,z,this.id);
 		}
 	}
