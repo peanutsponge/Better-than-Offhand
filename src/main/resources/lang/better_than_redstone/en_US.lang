@@ -16,3 +16,8 @@ tile.better_than_redstone.signal_toggle.name = Redstone Toggle
 tile.better_than_redstone.signal_toggle.desc = Toggles when pressed or powered
 tile.better_than_redstone.signal_pulse.name = Redstone Pulse
 tile.better_than_redstone.signal_pulse.desc = Pulses when pressed or powered, lower input strength gives a shorter pulse
+
+tile.better_than_redstone.pipe.name = Pipe
+tile.better_than_redstone.pipe.desc = Moves items
+gui.pipe.label.pipe = Pipe
+gui.pipe.label.inventory = Inventory

@@ -6,6 +6,7 @@ import net.minecraft.core.block.Block;
 import net.minecraft.core.block.tag.BlockTags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import peanutsponge.better_than_redstone.pipe.BlockPipe;
 import turniplabs.halplibe.util.GameStartEntrypoint;
 import turniplabs.halplibe.util.RecipeEntrypoint;
 import turniplabs.halplibe.helper.*;
@@ -40,6 +41,8 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 	public static Block blockSignalAnalogInput;
 	public static Block blockSignalToggle;
 	public static Block blockSignalPulse;
+
+	public static Block blockPipe;
     @Override
     public void onInitialize() {
         LOGGER.info("Better than redstone initialized.");
@@ -71,6 +74,10 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 			.build(new BlockSignalToggle("signal_toggle", blockNum++));
 		blockSignalPulse = signalBlockBuilder
 			.build(new BlockSignalPulse("signal_pulse", blockNum++));
+
+		blockPipe = signalBlockBuilder
+			.setBlockModel(new BlockModelRenderBlocks(36))
+			.build(new BlockPipe("pipe", blockNum++));
 	}
 
 	@Override
