@@ -1,6 +1,7 @@
 package peanutsponge.better_than_redstone;
 
 import net.minecraft.core.util.helper.Direction;
+import net.minecraft.core.world.World;
 
 import static net.minecraft.core.util.helper.Direction.*;
 
@@ -75,6 +76,9 @@ public class Directions {
 			default:
 				return NORTH;
 		}
+	}
+	public static Direction getPlacementDirection(World world, int x, int y, int z){
+		return getPlacementDirection(getDirectionCode(world.getBlockMetadata(x, y, z)));
 	}
 
 	public static Direction getHorizontalDirection(int directionCode) {

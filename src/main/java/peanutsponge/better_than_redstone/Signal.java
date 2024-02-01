@@ -20,7 +20,7 @@ public class Signal {
 	 */
 	public static int getCurrent(World world, int x, int y, int z, Direction direction) {
 		int blockIdTarget = world.getBlockId(x, y, z);
-		System.out.println("getCurrent(world, "+ x + ", " + y +", " + z + ", " + direction + ")");
+//		System.out.println("getCurrent(world, "+ x + ", " + y +", " + z + ", " + direction + ")");
 		switch (direction.getOpposite()) {
 			case DOWN://
 				y--;
@@ -44,7 +44,7 @@ public class Signal {
 		int blockId = world.getBlockId(x, y, z);
 		int data = world.getBlockMetadata(x, y, z);
 		Direction blockDirection = getPlacementDirection(getDirectionCode(data));
-		System.out.println("( " + x +","+ y+"," + z+") " + "[" + blockId +";"+data+"]");
+//		System.out.println("( " + x +","+ y+"," + z+") " + "[" + blockId +";"+data+"]");
 		if (blockId == 0)
 			return 0;
 		else if (Block.blocksList[blockId].isPoweringTo(world, x, y , z, direction.getOpposite().getId()))

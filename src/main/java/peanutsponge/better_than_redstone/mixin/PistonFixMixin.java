@@ -16,6 +16,6 @@ public class PistonFixMixin {
 	 */
 	@Overwrite
 	private boolean getNeighborSignal(World world, int x, int y, int z, int direction) {
-		return hasCurrent(world, x, y, z);
+		return world.isBlockGettingPowered(x, y, z);
 	}
 }

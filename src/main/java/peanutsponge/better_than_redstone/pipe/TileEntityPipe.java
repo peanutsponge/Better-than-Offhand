@@ -10,6 +10,8 @@ import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.player.inventory.IInventory;
 
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.blockPipe;
+
 public class TileEntityPipe extends TileEntity implements IInventory {
 	private ItemStack pipeContents;
 
@@ -43,16 +45,16 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 		}
 	}
 
-	public void addToStackInSlot(ItemStack itemstack){
-		if (this.pipeContents == null){
-			this.pipeContents = itemstack;
-		} else if (itemstack != null && itemstack.canStackWith(this.pipeContents)) {
-			this.pipeContents.stackSize += itemstack.stackSize;
-		}
-		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit()) {
-			itemstack.stackSize = this.getInventoryStackLimit();
-		}
-	}
+//	public void addToStackInSlot(ItemStack itemstack){
+//		if (this.pipeContents == null){
+//			this.pipeContents = itemstack;
+//		} else if (itemstack != null && itemstack.canStackWith(this.pipeContents)) {
+//			this.pipeContents.stackSize += itemstack.stackSize;
+//		}
+//		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit()) {
+//			itemstack.stackSize = this.getInventoryStackLimit();
+//		}
+//	}
 	public void setInventorySlotContents(int i, ItemStack itemstack) {
 		this.pipeContents = itemstack;
 		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit()) {
@@ -63,7 +65,7 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 	}
 
 	public String getInvName() {
-		return "Trap";
+		return "Pipe";
 	}
 
 	public void readFromNBT(CompoundTag nbttagcompound) {
@@ -106,6 +108,9 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 	}
 
 	public void sortInventory() {
+	}
+	public void onInventoryChanged(){
+		this.worldObj.scheduleBlockUpdate(this.x, this.y, this.z, blockPipe.id, 1);
 	}
 
 

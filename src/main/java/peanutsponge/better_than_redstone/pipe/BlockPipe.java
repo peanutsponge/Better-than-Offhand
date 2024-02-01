@@ -14,6 +14,7 @@ import peanutsponge.better_than_redstone.BlockTileEntityDirectional;
 
 import java.util.Random;
 
+import static net.minecraft.core.util.helper.Direction.*;
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
 import static peanutsponge.better_than_redstone.Directions.*;
 import static peanutsponge.better_than_redstone.Signal.getMaxSideCurrent;
@@ -45,7 +46,49 @@ public class BlockPipe extends BlockTileEntityDirectional {
 		int y_suck = directionToY(spitDirection.getOpposite());
 		int z_suck = directionToZ(spitDirection.getOpposite());
 	}
-	private boolean spitItem(World world, int x, int y, int z, int x_spit, int y_spit, int z_spit, ItemStack pipeStack, Random random) {
+
+	private boolean suckBlock(World world, int x, int y, int z, TileEntityPipe tileentitypipe) {
+		if (world.isBlockGettingPowered(x, y, z)){
+			return false;
+		}
+		int blockId = world.getBlockId(x, y, z);
+		if (!Block.isEntityTile[blockId] | blockId == this.id){
+			return false;
+		}
+		TileEntity targetTileEntity = world.getBlockTileEntity(x,y,z);
+		if (!(targetTileEntity instanceof IInventory)){
+			return false;
+		}
+
+		IInventory containerInventory = (IInventory) targetTileEntity;
+		int targetInventorySize = containerInventory.getSizeInventory();
+		ItemStack pipeStack = tileentitypipe.getStackInSlot(0);
+
+		for (int i=0;i<targetInventorySize;i++){
+			ItemStack containerStack = containerInventory.getStackInSlot(i);
+			if (containerStack == null) {
+				continue;
+			}
+			if (pipeStack == null) {
+				tileentitypipe.setInventorySlotContents(0, containerInventory.decrStackSize(i, 1));
+				world.playSoundEffect(1000, x, y, z, 0);
+				return true;
+			}
+			if(containerStack.canStackWith(pipeStack)){
+				if (pipeStack.stackSize == tileentitypipe.getInventoryStackLimit()){
+					continue;
+				}
+				pipeStack.stackSize += 1;
+				tileentitypipe.onInventoryChanged();
+				containerInventory.decrStackSize(i,1);
+				world.playSoundEffect(1000, x, y, z, 0);
+				return true;
+			}
+		}
+		world.playSoundEffect(1001, x, y, z, 0);
+		return false;
+	}
+	private boolean spitItem(World world, int x, int y, int z, int x_spit, int y_spit, int z_spit, TileEntityPipe tileentitypipe, int amount, Random random) {
 		int blockId = world.getBlockId(x+x_spit, y+y_spit, z+z_spit);
 		if (Block.solid[blockId]){
 			return false;
@@ -56,7 +99,7 @@ public class BlockPipe extends BlockTileEntityDirectional {
 		double d2 = (double)z + (double)z_spit * 0.6 + 0.5;
 		double d3 = random.nextDouble() * 0.1 + 0.2;
 
-		EntityItem entityitem = new EntityItem(world, d, d1 - 0.3, d2, pipeStack);
+		EntityItem entityitem = new EntityItem(world, d, d1 - 0.3, d2, tileentitypipe.decrStackSize(0, amount));
 		entityitem.xd = (double)x_spit * d3;
 		entityitem.yd = (double)y_spit * d3+ 0.20000000298023224;
 		entityitem.zd = (double)z_spit * d3;
@@ -64,10 +107,48 @@ public class BlockPipe extends BlockTileEntityDirectional {
 		entityitem.yd += random.nextGaussian() * 0.007499999832361937 * 6.0;
 		entityitem.zd += random.nextGaussian() * 0.007499999832361937 * 6.0;
 		world.entityJoinedWorld(entityitem);
+		world.playSoundEffect(1000, x, y, z, 0);
 		return true;
 	}
-
-	private boolean spitToBlock(World world, int x, int y, int z, ItemStack pipeStack) {
+	/**
+	 * First attempts to spit to the sides, then spits to the spit side.
+	 */
+	private boolean spitToBlocks(World world, int x, int y, int z, int x_spit, int y_spit, int z_spit, TileEntityPipe tileentitypipe, int amount) {
+		if (x_spit == 0) {
+			if (this.spitToPipe(world, x + 1, y, z, EAST, tileentitypipe, amount))
+				return true;
+			if (this.spitToPipe(world, x - 1, y, z, WEST ,tileentitypipe, amount))
+				return true;
+		}
+		if (y_spit == 0) {
+			if (this.spitToPipe(world, x , y+1, z, UP, tileentitypipe, amount))
+				return true;
+			if (this.spitToPipe(world, x , y-1, z, DOWN, tileentitypipe, amount))
+				return true;
+		}
+		if (z_spit == 0) {
+			if (this.spitToPipe(world, x , y, z+ 1, SOUTH, tileentitypipe, amount))
+				return true;
+			if (this.spitToPipe(world, z, y, z - 1, NORTH, tileentitypipe, amount))
+				return true;
+		}
+		return this.spitToBlock(world, x + x_spit, y + y_spit, z + z_spit, tileentitypipe, amount); // The block on the spit side
+	}
+	/**
+	 * Ensures that side spitting is only to the suck-side of pipes
+	 */
+	private boolean spitToPipe(World world, int x, int y, int z, Direction direction, TileEntityPipe tileentitypipe, int amount) {
+		if (world.getBlockId(x, y, z) != this.id)
+			return false;
+		Direction pipeDirection = getPlacementDirection(world, x, y, z);
+		if (direction == pipeDirection)
+			return this.spitToBlock(world, x, y, z, tileentitypipe, amount);
+		return false;
+	}
+	/**
+	 * Attempts to spit to a block located at x, y, z.
+	 */
+	private boolean spitToBlock(World world, int x, int y, int z, TileEntityPipe tileentitypipe, int amount) {
 		if (world.isBlockGettingPowered(x, y, z)){
 			return false;
 		}
@@ -79,52 +160,40 @@ public class BlockPipe extends BlockTileEntityDirectional {
 		if (!(targetTileEntity instanceof IInventory)){
 			return false;
 		}
+
 		IInventory targetInventory = (IInventory) targetTileEntity;
 		int targetInventorySize = targetInventory.getSizeInventory();
-
-
+		ItemStack pipeStack = tileentitypipe.getStackInSlot(0);
 
 		for (int i=0;i<targetInventorySize;i++){
 			ItemStack targetStack = targetInventory.getStackInSlot(i);
 			if (targetStack == null) {
-				targetInventory.setInventorySlotContents(i, pipeStack);
-				break;
+				targetInventory.setInventorySlotContents(i, tileentitypipe.decrStackSize(0, amount));
+				world.playSoundEffect(1000, x, y, z, 0);
+				return true;
 			}
 			if(pipeStack.canStackWith(targetStack)){
-				targetStack.stackSize++;
-				break;
+				if ((amount + targetStack.stackSize) > targetInventory.getInventoryStackLimit()){
+					continue;
+				}
+				targetStack.stackSize += amount;
+				targetInventory.onInventoryChanged();
+				tileentitypipe.decrStackSize(0, amount);
+				world.playSoundEffect(1000, x, y, z, 0);
+				return true;
 			}
 		}
-
-		return true;
+		world.playSoundEffect(1001, x, y, z, 0);
+		return false;
 	}
 
-	private boolean spitToBlocks(World world, int x, int y, int z, int x_spit, int y_spit, int z_spit, ItemStack pipeStack) {
 
-		if (x_spit == 0) {
-			if (this.spitToBlock(world, x + 1, y, z, pipeStack))
-				return true;
-			if (this.spitToBlock(world, x - 1, y, z, pipeStack))
-				return true;
-		}
-		if (y_spit == 0) {
-			if (this.spitToBlock(world, x , y+1, z, pipeStack))
-				return true;
-			if (this.spitToBlock(world, x , y-1, z, pipeStack))
-				return true;
-		}
-		if (z_spit == 0) {
-			if (this.spitToBlock(world, x , y, z+ 1, pipeStack))
-				return true;
-			if (this.spitToBlock(world, z, y, z - 1, pipeStack))
-				return true;
-		}
-		return this.spitToBlock(world, x + x_spit, y + y_spit, z + z_spit, pipeStack); // The block on the spit side
-	}
 
 	public void updateTick(World world, int x, int y, int z, Random rand) {
+		if (world.isBlockGettingPowered(x,y,z))
+			return;
 		TileEntityPipe tileentitypipe = (TileEntityPipe) world.getBlockTileEntity(x,y,z);
-		ItemStack pipeStack = tileentitypipe.decrStackSize(0,1);
+		ItemStack pipeStack = tileentitypipe.getStackInSlot(0);
 		if (pipeStack == null) {
 			world.playSoundEffect(1001, x, y, z, 0);
 			return;
@@ -136,21 +205,19 @@ public class BlockPipe extends BlockTileEntityDirectional {
 		int y_spit = directionToY(spitDirection);
 		int z_spit = directionToZ(spitDirection);
 
-		boolean doneSpitting = this.spitToBlocks(world, x, y, z, x_spit,y_spit,z_spit, pipeStack);
-		if (!doneSpitting)
-			doneSpitting = this.spitItem(world, x, y, z, x_spit,y_spit,z_spit, pipeStack, rand);
-		if (doneSpitting){
-			world.scheduleBlockUpdate(x, y, z, this.id, this.tickRate());
-			world.playSoundEffect(1000, x, y, z, 0);
-		} else{
-			tileentitypipe.addToStackInSlot(pipeStack);
+		int current = getMaxSideCurrent(world, x, y, z);
+		if (pipeStack.stackSize > current){
+			boolean doneSpitting = this.spitToBlocks(world, x, y, z, x_spit,y_spit,z_spit, tileentitypipe,  1);
+			if (!doneSpitting)
+				doneSpitting = this.spitItem(world, x, y, z, x_spit,y_spit,z_spit, tileentitypipe, 1, rand);
 		}
 
-		//TODO Sucking, maybe not here but on a collision trigger.
+		int x_suck = directionToX(spitDirection.getOpposite());
+		int y_suck = directionToY(spitDirection.getOpposite());
+		int z_suck = directionToZ(spitDirection.getOpposite());
+		this.suckBlock(world, x + x_suck, y + y_suck, z + z_suck, tileentitypipe);
 	}
-	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
-		world.scheduleBlockUpdate(x, y, z, this.id, this.tickRate());
-	}
+
 
 
 
