@@ -6,7 +6,8 @@
   "mixins": [
     "DirectionalModelMixin",
     "IndirectPowerDisableMixin",
-    "PistonFixMixin"
+    "PistonFixMixin",
+    "TileEntityMixin"
   ],
   "client": [
   ],

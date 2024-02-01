@@ -34,4 +34,6 @@ public class IndirectPowerDisableMixin {
 		int i1 = thisAs.getBlockId(i, j, k);
 		return i1 == 0 ? false : Block.blocksList[i1].isPoweringTo(thisAs, i, j, k, l);
 	}
+
+
 }

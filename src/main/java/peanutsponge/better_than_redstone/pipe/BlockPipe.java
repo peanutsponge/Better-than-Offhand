@@ -15,7 +15,6 @@ import peanutsponge.better_than_redstone.BlockTileEntityDirectional;
 import java.util.Random;
 
 import static net.minecraft.core.util.helper.Direction.*;
-import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.LOGGER;
 import static peanutsponge.better_than_redstone.Directions.*;
 import static peanutsponge.better_than_redstone.Signal.getMaxSideCurrent;
 
@@ -40,11 +39,34 @@ public class BlockPipe extends BlockTileEntityDirectional {
 			return true;
 		}
 	}
+	public boolean suck(World world, int x, int y, int z){
+		TileEntityPipe tileentitypipe = (TileEntityPipe) world.getBlockTileEntity(x,y,z);
+		ItemStack pipeStack = tileentitypipe.getStackInSlot(0);
+		if (pipeStack != null) {
+			if (pipeStack.stackSize != tileentitypipe.getInventoryStackLimit()) {
+				world.playSoundEffect(1001, x, y, z, 0);
+				return false;
+			}
+			if (pipeStack.stackSize <= getMaxSideCurrent(world, x, y, z)){
+				return false;
+			}
+		}
 
-	private void suckItem(World world, int x, int y, int z, Direction spitDirection) { //TODO SUCKING
+		Direction spitDirection = getPlacementDirection(world, x, y, z);
 		int x_suck = directionToX(spitDirection.getOpposite());
 		int y_suck = directionToY(spitDirection.getOpposite());
 		int z_suck = directionToZ(spitDirection.getOpposite());
+		if (this.suckBlock(world, x + x_suck, y + y_suck, z + z_suck, tileentitypipe))
+			return true;
+		return this.suckItem(world, x + x_suck, y + y_suck, z + z_suck, tileentitypipe);
+	}
+
+	private boolean suckItem(World world, int x, int y, int z, TileEntityPipe tileentitypipe) { //TODO SUCKING
+		int blockId = world.getBlockId(x, y, z);
+		if (Block.solid[blockId]){
+			return false;
+		}
+		return false;
 	}
 
 	private boolean suckBlock(World world, int x, int y, int z, TileEntityPipe tileentitypipe) {
@@ -88,7 +110,7 @@ public class BlockPipe extends BlockTileEntityDirectional {
 		world.playSoundEffect(1001, x, y, z, 0);
 		return false;
 	}
-	private boolean spitItem(World world, int x, int y, int z, int x_spit, int y_spit, int z_spit, TileEntityPipe tileentitypipe, int amount, Random random) {
+	private boolean spitItem(World world, int x, int y, int z, int x_spit, int y_spit, int z_spit, TileEntityPipe tileentitypipe, Random random) {
 		int blockId = world.getBlockId(x+x_spit, y+y_spit, z+z_spit);
 		if (Block.solid[blockId]){
 			return false;
@@ -99,7 +121,7 @@ public class BlockPipe extends BlockTileEntityDirectional {
 		double d2 = (double)z + (double)z_spit * 0.6 + 0.5;
 		double d3 = random.nextDouble() * 0.1 + 0.2;
 
-		EntityItem entityitem = new EntityItem(world, d, d1 - 0.3, d2, tileentitypipe.decrStackSize(0, amount));
+		EntityItem entityitem = new EntityItem(world, d, d1 - 0.3, d2, tileentitypipe.decrStackSize(0, 1));
 		entityitem.xd = (double)x_spit * d3;
 		entityitem.yd = (double)y_spit * d3+ 0.20000000298023224;
 		entityitem.zd = (double)z_spit * d3;
@@ -113,42 +135,58 @@ public class BlockPipe extends BlockTileEntityDirectional {
 	/**
 	 * First attempts to spit to the sides, then spits to the spit side.
 	 */
-	private boolean spitToBlocks(World world, int x, int y, int z, int x_spit, int y_spit, int z_spit, TileEntityPipe tileentitypipe, int amount) {
+	private boolean spit(World world, int x, int y, int z, Random rand) {
+		TileEntityPipe tileentitypipe = (TileEntityPipe) world.getBlockTileEntity(x,y,z);
+		ItemStack pipeStack = tileentitypipe.getStackInSlot(0);
+		if (pipeStack == null) {
+			world.playSoundEffect(1001, x, y, z, 0);
+			return false;
+		}
+		if (pipeStack.stackSize <= getMaxSideCurrent(world, x, y, z)){
+			return false;
+		}
+
+		Direction spitDirection = getPlacementDirection(world, x, y, z);
+		int x_spit = directionToX(spitDirection);
+		int y_spit = directionToY(spitDirection);
+		int z_spit = directionToZ(spitDirection);
 		if (x_spit == 0) {
-			if (this.spitToPipe(world, x + 1, y, z, EAST, tileentitypipe, amount))
+			if (this.spitToPipe(world, x + 1, y, z, EAST, tileentitypipe))
 				return true;
-			if (this.spitToPipe(world, x - 1, y, z, WEST ,tileentitypipe, amount))
+			if (this.spitToPipe(world, x - 1, y, z, WEST ,tileentitypipe))
 				return true;
 		}
 		if (y_spit == 0) {
-			if (this.spitToPipe(world, x , y+1, z, UP, tileentitypipe, amount))
+			if (this.spitToPipe(world, x , y+1, z, UP, tileentitypipe))
 				return true;
-			if (this.spitToPipe(world, x , y-1, z, DOWN, tileentitypipe, amount))
+			if (this.spitToPipe(world, x , y-1, z, DOWN, tileentitypipe))
 				return true;
 		}
 		if (z_spit == 0) {
-			if (this.spitToPipe(world, x , y, z+ 1, SOUTH, tileentitypipe, amount))
+			if (this.spitToPipe(world, x , y, z+ 1, SOUTH, tileentitypipe))
 				return true;
-			if (this.spitToPipe(world, z, y, z - 1, NORTH, tileentitypipe, amount))
+			if (this.spitToPipe(world, z, y, z - 1, NORTH, tileentitypipe))
 				return true;
 		}
-		return this.spitToBlock(world, x + x_spit, y + y_spit, z + z_spit, tileentitypipe, amount); // The block on the spit side
+		if (this.spitToBlock(world, x + x_spit, y + y_spit, z + z_spit, tileentitypipe)) // The block on the spit side
+			return true;
+		return this.spitItem(world, x, y, z, x_spit,y_spit,z_spit, tileentitypipe, rand);
 	}
 	/**
 	 * Ensures that side spitting is only to the suck-side of pipes
 	 */
-	private boolean spitToPipe(World world, int x, int y, int z, Direction direction, TileEntityPipe tileentitypipe, int amount) {
+	private boolean spitToPipe(World world, int x, int y, int z, Direction direction, TileEntityPipe tileentitypipe) {
 		if (world.getBlockId(x, y, z) != this.id)
 			return false;
 		Direction pipeDirection = getPlacementDirection(world, x, y, z);
 		if (direction == pipeDirection)
-			return this.spitToBlock(world, x, y, z, tileentitypipe, amount);
+			return this.spitToBlock(world, x, y, z, tileentitypipe);
 		return false;
 	}
 	/**
 	 * Attempts to spit to a block located at x, y, z.
 	 */
-	private boolean spitToBlock(World world, int x, int y, int z, TileEntityPipe tileentitypipe, int amount) {
+	private boolean spitToBlock(World world, int x, int y, int z, TileEntityPipe tileentitypipe) {
 		if (world.isBlockGettingPowered(x, y, z)){
 			return false;
 		}
@@ -168,17 +206,17 @@ public class BlockPipe extends BlockTileEntityDirectional {
 		for (int i=0;i<targetInventorySize;i++){
 			ItemStack targetStack = targetInventory.getStackInSlot(i);
 			if (targetStack == null) {
-				targetInventory.setInventorySlotContents(i, tileentitypipe.decrStackSize(0, amount));
+				targetInventory.setInventorySlotContents(i, tileentitypipe.decrStackSize(0, 1));
 				world.playSoundEffect(1000, x, y, z, 0);
 				return true;
 			}
 			if(pipeStack.canStackWith(targetStack)){
-				if ((amount + targetStack.stackSize) > targetInventory.getInventoryStackLimit()){
+				if ((1 + targetStack.stackSize) > targetInventory.getInventoryStackLimit()){
 					continue;
 				}
-				targetStack.stackSize += amount;
+				targetStack.stackSize += 1;
 				targetInventory.onInventoryChanged();
-				tileentitypipe.decrStackSize(0, amount);
+				tileentitypipe.decrStackSize(0, 1);
 				world.playSoundEffect(1000, x, y, z, 0);
 				return true;
 			}
@@ -192,30 +230,9 @@ public class BlockPipe extends BlockTileEntityDirectional {
 	public void updateTick(World world, int x, int y, int z, Random rand) {
 		if (world.isBlockGettingPowered(x,y,z))
 			return;
-		TileEntityPipe tileentitypipe = (TileEntityPipe) world.getBlockTileEntity(x,y,z);
-		ItemStack pipeStack = tileentitypipe.getStackInSlot(0);
-		if (pipeStack == null) {
-			world.playSoundEffect(1001, x, y, z, 0);
-			return;
-		}
+		this.suck(world, x, y, z);
+		this.spit(world, x, y, z, rand);
 
-		int data = world.getBlockMetadata(x, y, z);
-		Direction spitDirection = getPlacementDirection(getDirectionCode(data));
-		int x_spit = directionToX(spitDirection);
-		int y_spit = directionToY(spitDirection);
-		int z_spit = directionToZ(spitDirection);
-
-		int current = getMaxSideCurrent(world, x, y, z);
-		if (pipeStack.stackSize > current){
-			boolean doneSpitting = this.spitToBlocks(world, x, y, z, x_spit,y_spit,z_spit, tileentitypipe,  1);
-			if (!doneSpitting)
-				doneSpitting = this.spitItem(world, x, y, z, x_spit,y_spit,z_spit, tileentitypipe, 1, rand);
-		}
-
-		int x_suck = directionToX(spitDirection.getOpposite());
-		int y_suck = directionToY(spitDirection.getOpposite());
-		int z_suck = directionToZ(spitDirection.getOpposite());
-		this.suckBlock(world, x + x_suck, y + y_suck, z + z_suck, tileentitypipe);
 	}
 
 
