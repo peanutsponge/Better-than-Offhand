@@ -7,8 +7,8 @@ import net.minecraft.core.block.tag.BlockTags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import peanutsponge.better_than_redstone.pipe.BlockPipe;
-import peanutsponge.better_than_redstone.pipe.GuiPipe;
 import peanutsponge.better_than_redstone.pipe.TileEntityPipe;
+import peanutsponge.better_than_redstone.signal_components.*;
 import turniplabs.halplibe.util.GameStartEntrypoint;
 import turniplabs.halplibe.util.RecipeEntrypoint;
 import turniplabs.halplibe.helper.*;
@@ -33,6 +33,7 @@ public class BetterThanRedstoneMod implements ModInitializer, GameStartEntrypoin
 		.setLightOpacity(0)
 		.setHardness(1.5f)
 		.setVisualUpdateOnMetadata()
+		.setTickOnLoad()
 		.setTags(BlockTags.MINEABLE_BY_PICKAXE);
 
 	public static Block blockSignalConductor;

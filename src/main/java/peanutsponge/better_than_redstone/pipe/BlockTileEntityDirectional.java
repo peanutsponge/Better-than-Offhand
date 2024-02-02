@@ -1,4 +1,4 @@
-package peanutsponge.better_than_redstone;
+package peanutsponge.better_than_redstone.pipe;
 
 import net.minecraft.core.block.BlockTileEntity;
 import net.minecraft.core.block.material.Material;
@@ -6,6 +6,7 @@ import net.minecraft.core.entity.EntityLiving;
 import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
+import peanutsponge.better_than_redstone.Directions;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
 import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;

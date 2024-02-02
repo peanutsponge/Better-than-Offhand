@@ -1,4 +1,4 @@
-package peanutsponge.better_than_redstone;
+package peanutsponge.better_than_redstone.signal_components;
 
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.material.Material;

@@ -1,9 +1,11 @@
-package peanutsponge.better_than_redstone;
+package peanutsponge.better_than_redstone.signal_components;
 
 import net.minecraft.core.block.material.Material;
 import net.minecraft.core.entity.EntityLiving;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
+import peanutsponge.better_than_redstone.BlockDirectional;
+import peanutsponge.better_than_redstone.Directions;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
 import static peanutsponge.better_than_redstone.Signal.*;

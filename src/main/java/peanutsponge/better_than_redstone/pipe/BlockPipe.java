@@ -12,7 +12,6 @@ import net.minecraft.core.player.inventory.IInventory;
 import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
-import peanutsponge.better_than_redstone.BlockTileEntityDirectional;
 
 import java.util.Random;
 
