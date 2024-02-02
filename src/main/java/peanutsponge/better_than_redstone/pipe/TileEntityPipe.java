@@ -1,15 +1,12 @@
 package peanutsponge.better_than_redstone.pipe;
 
-import com.mojang.nbt.CompoundTag;
-import com.mojang.nbt.ListTag;
+import com.mojang.nbt.*;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.entity.TileEntity;
-import net.minecraft.core.block.entity.TileEntityFurnace;
 import net.minecraft.core.entity.Entity;
 import net.minecraft.core.entity.EntityItem;
 import net.minecraft.core.entity.player.EntityPlayer;
@@ -79,6 +76,7 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 				this.pipeContents = ItemStack.readItemStackFromNbt(nbttagcompound1);
 			}
 		}
+		this.isTicking = (nbttagcompound.getInteger("Ticking")==1);
 
 	}
 
@@ -90,10 +88,9 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 			nbttagcompound1.putByte("Slot", (byte)0);
 			this.pipeContents.writeToNBT(nbttagcompound1);
 			nbttaglist.addTag(nbttagcompound1);
-
 		}
-
 		nbttagcompound.put("Items", nbttaglist);
+		nbttagcompound.put("Ticking", new IntTag(this.isTicking?1:0));
 	}
 
 	public int getInventoryStackLimit() {
@@ -125,31 +122,25 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 		return false;
 	}
 	public void tick() {
-		if (!isTicking)
-			return;
-		if (this.worldObj != null && !this.worldObj.isClientSide && !this.worldObj.isBlockGettingPowered(this.x, this.y, this.z)) {
+		if (isTicking && this.worldObj != null && !this.worldObj.isClientSide && !this.worldObj.isBlockGettingPowered(this.x, this.y, this.z)) {
 			Direction spitDirection = getPlacementDirection(this.worldObj, this.x, this.y, this.z);
 			int x_suck =this.x + directionToX(spitDirection.getOpposite());
-			int y_suck = this.y +directionToY(spitDirection.getOpposite());
-			int z_suck = this.z +directionToZ(spitDirection.getOpposite());
-			if (Block.solid[this.worldObj.getBlockId(x_suck, y_suck, z_suck)]){
-				return;
-			}
-			AABB aabb = AABB.getBoundingBoxFromPool((double) x_suck, (double) y_suck, (double) z_suck, (double)(1 + x_suck), (double)(1 + y_suck), (double)(1+ z_suck));
-			List<Entity> entities = this.worldObj.getEntitiesWithinAABB(EntityItem.class, aabb);
-			if (entities.size() > 0) {
-				Iterator var4 = entities.iterator();
-
-				while(var4.hasNext()) {
-					Entity e = (Entity)var4.next();
-					EntityItem entity = (EntityItem)e;
-					if (entity.item != null && entity.item.stackSize > 0 && entity.basketPickupDelay == 0) {
-						if (this.addItem(entity.item)){
-							onInventoryChanged();
-							e.outOfWorld();
-							break;
-						}
-					}
+			int y_suck = this.y +  directionToY(spitDirection.getOpposite());
+			int z_suck = this.z + directionToZ(spitDirection.getOpposite());
+			if (!Block.solid[this.worldObj.getBlockId(x_suck, y_suck, z_suck)]){
+				AABB aabb = AABB.getBoundingBoxFromPool((double) x_suck, (double) y_suck, (double) z_suck, (double)(1 + x_suck), (double)(1 + y_suck), (double)(1+ z_suck));
+				List<Entity> entities = this.worldObj.getEntitiesWithinAABB(EntityItem.class, aabb);
+				if (!entities.isEmpty()) {
+                    for (Entity e : entities) {
+                        EntityItem entity = (EntityItem) e;
+                        if (entity.item != null && entity.item.stackSize > 0 && entity.basketPickupDelay == 0) {
+                            if (this.addItem(entity.item)) {
+                                onInventoryChanged();
+                                e.outOfWorld();
+                                break; // only pick up 1 item each tick #TODO IT CAN PICK UP WHOLE STACKS ATM
+                            }
+                        }
+                    }
 				}
 			}
 		}

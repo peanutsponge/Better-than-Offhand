@@ -5,24 +5,31 @@ import net.minecraft.core.block.Block;
 import net.minecraft.core.block.entity.TileEntity;
 import net.minecraft.core.block.material.Material;
 import net.minecraft.core.entity.EntityItem;
+import net.minecraft.core.entity.EntityLiving;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.player.inventory.IInventory;
 import net.minecraft.core.util.helper.Direction;
+import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 import peanutsponge.better_than_redstone.BlockTileEntityDirectional;
 
 import java.util.Random;
 
 import static net.minecraft.core.util.helper.Direction.*;
+import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.MOD_ID;
 import static peanutsponge.better_than_redstone.Directions.*;
 import static peanutsponge.better_than_redstone.Signal.getMaxSideCurrent;
+import static turniplabs.halplibe.helper.TextureHelper.getOrCreateBlockTextureIndex;
 
 public class BlockPipe extends BlockTileEntityDirectional {
 	private Random random = new Random();
 
 	public BlockPipe(String key, int id) {
 		super(key, id, Material.metal);
+		this.atlasIndices[0] = getOrCreateBlockTextureIndex(MOD_ID, "pipe_input.png");
+		this.atlasIndices[1] = getOrCreateBlockTextureIndex(MOD_ID, "pipe_side.png");
+		this.atlasIndices[3] = getOrCreateBlockTextureIndex(MOD_ID, "pipe_output.png");
 	}
 
 	public int tickRate() {
@@ -31,10 +38,9 @@ public class BlockPipe extends BlockTileEntityDirectional {
 
 	public boolean blockActivated(World world, int x, int y, int z, EntityPlayer player) {
 		if (world.isClientSide) { //TODO Multiplayer support
-			return true;
+			return false;
 		} else {
 			TileEntityPipe tileentitypipe = (TileEntityPipe)world.getBlockTileEntity(x, y, z);
-//			player.displayGUIDispenser(tileentitypipe); //Look into this maybe
 			Minecraft.getMinecraft(Minecraft.class).displayGuiScreen(new GuiPipe(player.inventory, tileentitypipe));
 			return true;
 		}
@@ -228,18 +234,20 @@ public class BlockPipe extends BlockTileEntityDirectional {
 
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
-		super.onNeighborBlockChange(world, x, y, z, blockId);
-		TileEntityPipe tileentitypipe = (TileEntityPipe) world.getBlockTileEntity(x,y,z);
-
-
 		Direction spitDirection = getPlacementDirection(world, x, y, z);
 		int x_suck = directionToX(spitDirection.getOpposite());
 		int y_suck = directionToY(spitDirection.getOpposite());
 		int z_suck = directionToZ(spitDirection.getOpposite());
-		if (Block.solid[world.getBlockId(x+x_suck, y+y_suck, z+z_suck)]){
-			return;
-		}
+		TileEntityPipe tileentitypipe = (TileEntityPipe) world.getBlockTileEntity(x,y,z);
+        tileentitypipe.isTicking = !(Block.solid[world.getBlockId(x + x_suck, y + y_suck, z + z_suck)] | world.isBlockGettingPowered(x, y, z));
+		super.onNeighborBlockChange(world, x, y, z, blockId);
+	}
 
+
+	@Override
+	public void onBlockPlaced(World world, int x, int y, int z, Side side, EntityLiving entity, double sideHeight) {
+		super.onBlockPlaced(world, x, y, z, side, entity, sideHeight);
+		this.onNeighborBlockChange(world,x,y,z, this.id);
 	}
 
 	protected TileEntity getNewBlockEntity() {
