@@ -56,18 +56,9 @@ public class BlockPipe extends BlockTileEntityDirectional {
 		int x_suck = directionToX(spitDirection.getOpposite());
 		int y_suck = directionToY(spitDirection.getOpposite());
 		int z_suck = directionToZ(spitDirection.getOpposite());
-		if (this.suckBlock(world, x + x_suck, y + y_suck, z + z_suck, tileentitypipe))
-			return true;
-		return this.suckItem(world, x + x_suck, y + y_suck, z + z_suck, tileentitypipe);
+		return this.suckBlock(world, x + x_suck, y + y_suck, z + z_suck, tileentitypipe);
 	}
 
-	private boolean suckItem(World world, int x, int y, int z, TileEntityPipe tileentitypipe) { //TODO SUCKING
-		int blockId = world.getBlockId(x, y, z);
-		if (Block.solid[blockId]){
-			return false;
-		}
-		return false;
-	}
 
 	private boolean suckBlock(World world, int x, int y, int z, TileEntityPipe tileentitypipe) {
 		if (world.isBlockGettingPowered(x, y, z)){
@@ -235,8 +226,21 @@ public class BlockPipe extends BlockTileEntityDirectional {
 
 	}
 
+	@Override
+	public void onNeighborBlockChange(World world, int x, int y, int z, int blockId) {
+		super.onNeighborBlockChange(world, x, y, z, blockId);
+		TileEntityPipe tileentitypipe = (TileEntityPipe) world.getBlockTileEntity(x,y,z);
 
 
+		Direction spitDirection = getPlacementDirection(world, x, y, z);
+		int x_suck = directionToX(spitDirection.getOpposite());
+		int y_suck = directionToY(spitDirection.getOpposite());
+		int z_suck = directionToZ(spitDirection.getOpposite());
+		if (Block.solid[world.getBlockId(x+x_suck, y+y_suck, z+z_suck)]){
+			return;
+		}
+
+	}
 
 	protected TileEntity getNewBlockEntity() {
 		return new TileEntityPipe();

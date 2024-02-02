@@ -2,19 +2,29 @@ package peanutsponge.better_than_redstone.pipe;
 
 import com.mojang.nbt.CompoundTag;
 import com.mojang.nbt.ListTag;
+
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
+import net.minecraft.core.block.Block;
 import net.minecraft.core.block.entity.TileEntity;
 import net.minecraft.core.block.entity.TileEntityFurnace;
+import net.minecraft.core.entity.Entity;
+import net.minecraft.core.entity.EntityItem;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.player.inventory.IInventory;
+import net.minecraft.core.util.helper.Direction;
+import net.minecraft.core.util.phys.AABB;
 
 import static peanutsponge.better_than_redstone.BetterThanRedstoneMod.blockPipe;
+import static peanutsponge.better_than_redstone.Directions.*;
+import static peanutsponge.better_than_redstone.Directions.directionToZ;
 
 public class TileEntityPipe extends TileEntity implements IInventory {
 	private ItemStack pipeContents;
-
+	public boolean isTicking = true;
 	public int getSizeInventory() {
 		return 1;
 	}
@@ -45,16 +55,7 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 		}
 	}
 
-//	public void addToStackInSlot(ItemStack itemstack){
-//		if (this.pipeContents == null){
-//			this.pipeContents = itemstack;
-//		} else if (itemstack != null && itemstack.canStackWith(this.pipeContents)) {
-//			this.pipeContents.stackSize += itemstack.stackSize;
-//		}
-//		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit()) {
-//			itemstack.stackSize = this.getInventoryStackLimit();
-//		}
-//	}
+
 	public void setInventorySlotContents(int i, ItemStack itemstack) {
 		this.pipeContents = itemstack;
 		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit()) {
@@ -112,6 +113,45 @@ public class TileEntityPipe extends TileEntity implements IInventory {
 	public void onInventoryChanged(){
 		this.worldObj.scheduleBlockUpdate(this.x, this.y, this.z, blockPipe.id, 1);
 	}
+	public boolean addItem(ItemStack itemstack){
+		if (this.pipeContents == null){
+			this.pipeContents = itemstack;
+			return true;
+		} else if (itemstack != null && itemstack.canStackWith(this.pipeContents) && this.pipeContents.stackSize < this.getInventoryStackLimit()) {
+			this.pipeContents.stackSize++;
+			itemstack.stackSize--;
+			return true;
+		}
+		return false;
+	}
+	public void tick() {
+		if (!isTicking)
+			return;
+		if (this.worldObj != null && !this.worldObj.isClientSide && !this.worldObj.isBlockGettingPowered(this.x, this.y, this.z)) {
+			Direction spitDirection = getPlacementDirection(this.worldObj, this.x, this.y, this.z);
+			int x_suck =this.x + directionToX(spitDirection.getOpposite());
+			int y_suck = this.y +directionToY(spitDirection.getOpposite());
+			int z_suck = this.z +directionToZ(spitDirection.getOpposite());
+			if (Block.solid[this.worldObj.getBlockId(x_suck, y_suck, z_suck)]){
+				return;
+			}
+			AABB aabb = AABB.getBoundingBoxFromPool((double) x_suck, (double) y_suck, (double) z_suck, (double)(1 + x_suck), (double)(1 + y_suck), (double)(1+ z_suck));
+			List<Entity> entities = this.worldObj.getEntitiesWithinAABB(EntityItem.class, aabb);
+			if (entities.size() > 0) {
+				Iterator var4 = entities.iterator();
 
-
+				while(var4.hasNext()) {
+					Entity e = (Entity)var4.next();
+					EntityItem entity = (EntityItem)e;
+					if (entity.item != null && entity.item.stackSize > 0 && entity.basketPickupDelay == 0) {
+						if (this.addItem(entity.item)){
+							onInventoryChanged();
+							e.outOfWorld();
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
 }
